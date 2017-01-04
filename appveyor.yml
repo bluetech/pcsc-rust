@@ -1,0 +1,20 @@
+# TODO: beta is needed for the static globals to link.
+#       Remove once Rust 1.15 is released.
+environment:
+  matrix:
+    - TARGET: x86_64-pc-windows-msvc
+      TOOLCHAIN: beta
+    - TARGET: i686-pc-windows-msvc
+      TOOLCHAIN: beta
+install:
+  - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+  - rustup-init.exe -y --default-host %TARGET% --default-toolchain %TOOLCHAIN%
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
+  - rustc -V
+  - cargo -V
+
+build: false
+
+test_script:
+  - cargo build --verbose
+  - cargo test --verbose

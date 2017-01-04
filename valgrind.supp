@@ -1,0 +1,12 @@
+# Valgrind suppression file.
+
+# libpcsclite allocates some stuff when the first context is
+# established, but never frees them afterwards.
+{
+   Suppress static leak in libpcsclite.
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:SCardEstablishContext
+   ...
+}
