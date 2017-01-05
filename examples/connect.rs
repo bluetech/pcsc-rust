@@ -32,17 +32,17 @@ fn main() {
 
             // Send some harmless APDU to the card.
             let apdu = b"\x00\xa4\x04\x00\x08\x31\x54\x49\x43\x2e\x49\x43\x41";
-            let mut rapdu_buf = [0u8; MAX_BUFFER_SIZE];
+            let mut rapdu_buf = [0; MAX_BUFFER_SIZE];
             let rapdu = tx.transmit(apdu, &mut rapdu_buf).expect("failed to transmit APDU to card");
             println!("RAPDU: {:?}", rapdu);
 
             // Get the card's ATR.
-            let mut atr_buf = [0u8; MAX_ATR_SIZE];
+            let mut atr_buf = [0; MAX_ATR_SIZE];
             let atr = tx.get_attribute(Attribute::AtrString, &mut atr_buf).expect("failed to get ATR attribute");
             println!("ATR: {:?}", atr);
 
             // Get some attribute.
-            let mut vendor_name_buf = [0u8; 128];
+            let mut vendor_name_buf = [0; 128];
             let vendor_name = tx.get_attribute(Attribute::VendorName, &mut vendor_name_buf).expect("failed to get vendor name attribute");
             println!("Vendor name: {}", std::str::from_utf8(vendor_name).unwrap());
 

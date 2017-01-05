@@ -9,7 +9,7 @@ use std::time::Duration;
 fn wait_for_enter_keypress() {
     use std::io::Read;
     let mut stdin = std::io::stdin();
-    let _ = stdin.read(&mut [0u8]).expect("failed to read key");
+    let _ = stdin.read(&mut [0]).expect("failed to read key");
 }
 
 fn main() {
