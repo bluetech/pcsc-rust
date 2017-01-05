@@ -1,6 +1,10 @@
 // TODO: Should probably use a build-script to detect the libraries.
 // TODO: Should probably move to a separate pcsc-sys crate, as per
 //       http://doc.crates.io/build-script.html#-sys-packages
+// TODO: Fix possible casting problems: clippy lints:
+//       - cast-sign-loss
+//       - cast-possible-truncation
+//       - cast-possible-wrap
 
 #![allow(dead_code)]
 #![allow(bad_style)]
