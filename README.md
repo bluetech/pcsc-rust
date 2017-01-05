@@ -1,9 +1,11 @@
 # pcsc-rust
 
-[![Travis CI](https://travis-ci.org/bluetech/pcsc-rust.svg?branch=master)](https://travis-ci.org/bluetech/pcsc-rust)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/s16sb4kt79v7yop4/branch/master?svg=true)](https://ci.appveyor.com/project/bluetech/pcsc-rust/branch/master)
-[![crates.io](https://img.shields.io/crates/v/pcsc.svg?maxAge=2592000)](https://crates.io/crates/pcsc)
+[![crates.io](https://img.shields.io/crates/v/pcsc.svg)](https://crates.io/crates/pcsc)
 [![docs.rs](https://docs.rs/pcsc/badge.svg)](https://docs.rs/pcsc)
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bluetech/pcsc/blob/master/LICENSE)
+
+Linux, macOS: [![Travis CI](https://travis-ci.org/bluetech/pcsc-rust.svg?branch=master)](https://travis-ci.org/bluetech/pcsc-rust)
+Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/s16sb4kt79v7yop4/branch/master?svg=true)](https://ci.appveyor.com/project/bluetech/pcsc-rust/branch/master)
 
 Rust bindings to PC/SC for smart card communication.
 
