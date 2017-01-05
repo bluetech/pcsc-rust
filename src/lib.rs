@@ -1,6 +1,6 @@
-//! Communicate with smart cards using the PC/SC protocol.
+//! Communicate with smart cards using the PC/SC API.
 //!
-//! PC/SC (Personal Computer/Smart Card) is a standard protocol for
+//! PC/SC (Personal Computer/Smart Card) is a standard API for
 //! communicating with smart cards -- enumerating card readers, connecting
 //! to smart cards, sending them commands, etc. See [Wikipedia][1] and
 //! [PC/SC Workgroup][2] for more information.
