@@ -693,6 +693,12 @@ impl Drop for Context {
 impl ReaderState {
     /// Create a ReaderState for a card reader with a given presumed
     /// state.
+    ///
+    /// ## Note
+    ///
+    /// This function allocates a copy of `name`, so that the returned
+    /// `ReaderState` is not tied to `name`'s lifetime'; it would have
+    /// been difficult to use `Context::get_status_changes` otherwise.
     // TODO: Support ATR fields.
     pub fn new(
         name: &CStr,
@@ -700,9 +706,6 @@ impl ReaderState {
     ) -> ReaderState {
         ReaderState {
             inner: ffi::SCARD_READERSTATE {
-                // get_status_changes() is hell to use if we bind the
-                // ReaderState's lifetime to the name's lifetime. For
-                // convenience, we take the allocation hit here.
                 szReader: name.to_owned().into_raw(),
                 // This seems useless to expose.
                 pvUserData: null_mut(),
