@@ -445,8 +445,7 @@ impl<'buf> Iterator for ReaderNames<'buf> {
 
     fn next(&mut self) -> Option<&'buf CStr> {
         match self.buf[self.pos..].iter().position(|&c| c == 0) {
-            None => None,
-            Some(0) => None,
+            None | Some(0) => None,
             Some(len) => unsafe {
                 let old_pos = self.pos;
                 self.pos += len + 1;
