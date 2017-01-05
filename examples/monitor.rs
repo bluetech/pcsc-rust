@@ -22,7 +22,7 @@ fn main() {
                 println!("Removing {:?}", rs.name());
             }
         }
-        reader_states.retain(|ref rs| !is_dead(rs));
+        reader_states.retain(|rs| !is_dead(rs));
 
         // Add new readers.
         let names = ctx.list_readers(&mut readers_buf).expect("failed to list readers");
