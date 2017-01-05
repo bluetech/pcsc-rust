@@ -11,7 +11,7 @@
 //! This library is a safe and ergonomic FFI wrapper around the following
 //! PC/SC implementations:
 //!
-//! - On Windows, the built-in WinSCard.dll library and "Smart Card"
+//! - On Windows, the built-in `WinSCard.dll` library and "Smart Card"
 //!   service. See [MSDN][3] for documentation of the implemented API.
 //!
 //! - On Apple, the built-in PCSC framework.
@@ -166,8 +166,8 @@ pub enum Disposition {
 ///
 /// See [pcsclite][1], [MSDN][2].
 ///
-/// [1] https://pcsclite.alioth.debian.org/api/group__ErrorCodes.html
-/// [2] https://msdn.microsoft.com/en-us/library/windows/desktop/aa374738(v=vs.85).aspx#smart_card_return_values
+/// [1]: https://pcsclite.alioth.debian.org/api/group__ErrorCodes.html
+/// [2]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa374738(v=vs.85).aspx#smart_card_return_values
 #[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum Error {
