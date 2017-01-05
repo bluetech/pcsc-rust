@@ -546,7 +546,7 @@ impl Context {
     pub fn get_canceler(
         &self
     ) -> Canceler {
-        return Canceler {
+        Canceler {
             handle: self.handle,
         }
     }
