@@ -366,7 +366,7 @@ pub fn PNP_NOTIFICATION() -> &'static CStr {
 
 /// A structure for tracking the current state of card readers and cards.
 ///
-/// See [pcsclite][1], [MSDN][2].
+/// This structure wraps `SCARD_READERSTATE` ([pcsclite][1], [MSDN][2]).
 ///
 /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga33247d5d1257d59e55647c3bb717db24
 /// [2]: https://msdn.microsoft.com/en-us/library/aa379808.aspx
@@ -390,6 +390,8 @@ fn get_protocol_pci(protocol: Protocol) -> &'static ffi::SCARD_IO_REQUEST {
 }
 
 /// Library context to the PCSC service.
+///
+/// This structure wraps `SCARDCONTEXT`.
 pub struct Context {
     // A context and all derived objects must only be used in
     // the thread which created it.
@@ -414,6 +416,8 @@ pub struct Canceler {
 }
 
 /// A connection to a smart card.
+///
+/// This structure wraps `SCARDHANDLE`.
 pub struct Card<'ctx> {
     _context: PhantomData<&'ctx Context>,
     handle: ffi::SCARDHANDLE,
