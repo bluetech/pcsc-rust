@@ -632,7 +632,8 @@ impl Context {
     /// List all connected card readers.
     ///
     /// `buffer` is a buffer that should be large enough to hold all of
-    /// the connected reader names.
+    /// the connected reader names. The function `list_readers_len` can be
+    /// used to find the exact required length.
     ///
     /// Returns an iterator over the reader names. The iterator yields
     /// values directly from `buffer`.
@@ -644,8 +645,6 @@ impl Context {
     ///
     /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379793.aspx
-    // TODO: Add way to safely get the needed buffer size (returned in
-    // buflen).
     pub fn list_readers<'buf>(
         &self,
         buffer: &'buf mut [u8],
@@ -673,6 +672,35 @@ impl Context {
                 buf: &buffer[..buflen as usize],
                 pos: 0,
             })
+        }
+    }
+
+    /// Get the needed length of a buffer to be passed to `list_readers`.
+    ///
+    /// This function wraps `SCardListReaders` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379793.aspx
+    pub fn list_readers_len(
+        &self,
+    ) -> Result<usize, Error> {
+        unsafe {
+            let mut buflen = uninitialized();
+
+            let err = ffi::SCardListReaders(
+                self.handle,
+                null(),
+                null_mut(),
+                &mut buflen,
+            );
+            if err == Error::NoReadersAvailable as LONG {
+                return Ok(0);
+            }
+            if err != ffi::SCARD_S_SUCCESS {
+                return Err(Error::from_raw(err));
+            }
+
+            Ok(buflen as usize)
         }
     }
 
@@ -957,7 +985,8 @@ impl<'ctx> Card<'ctx> {
     /// Get an attribute of the card or card reader.
     ///
     /// `buffer` is a buffer that should be large enough for the attribute
-    /// data.
+    /// data. The function `get_attribute_len` can be used to find the
+    /// exact required length.
     ///
     /// Returns a slice into `buffer` containing the attribute data.
     ///
@@ -968,8 +997,6 @@ impl<'ctx> Card<'ctx> {
     ///
     /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacfec51917255b7a25b94c5104961602
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379559.aspx
-    // TODO: Add way to safely get the needed buffer size (returned in
-    // attribute_len).
     pub fn get_attribute<'buf>(
         &self,
         attribute: Attribute,
@@ -986,6 +1013,30 @@ impl<'ctx> Card<'ctx> {
             ));
 
             Ok(&buffer[0..attribute_len as usize])
+        }
+    }
+
+    /// Get the needed length of a buffer to be passed to `get_attribute`.
+    ///
+    /// This function wraps `SCardGetAttrib` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacfec51917255b7a25b94c5104961602
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379559.aspx
+    pub fn get_attribute_len(
+        &self,
+        attribute: Attribute,
+    ) -> Result<usize, Error> {
+        unsafe {
+            let mut attribute_len = uninitialized();
+
+            try_pcsc!(ffi::SCardGetAttrib(
+                self.handle,
+                attribute as DWORD,
+                null_mut(),
+                &mut attribute_len,
+            ));
+
+            Ok(attribute_len as usize)
         }
     }
 

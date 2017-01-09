@@ -42,7 +42,14 @@ fn main() {
             println!("ATR: {:?}", atr);
 
             // Get some attribute.
-            let mut vendor_name_buf = [0; 128];
+            let mut ifd_version_buf = [0; 4];
+            let ifd_version = tx.get_attribute(Attribute::VendorIfdVersion, &mut ifd_version_buf).expect("failed to get vendor IFD version attribute");
+            println!("Vendor IFD version: {:?}", ifd_version);
+
+            // Get some other attribute.
+            // This time we allocate a buffer of the needed length.
+            let vendor_name_len = tx.get_attribute_len(Attribute::VendorName).expect("failed to get the vendor name attribute length");
+            let mut vendor_name_buf = vec![0; vendor_name_len];
             let vendor_name = tx.get_attribute(Attribute::VendorName, &mut vendor_name_buf).expect("failed to get vendor name attribute");
             println!("Vendor name: {}", std::str::from_utf8(vendor_name).unwrap());
 
