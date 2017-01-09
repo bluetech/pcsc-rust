@@ -53,8 +53,12 @@ pub const SCARD_E_CARD_UNSUPPORTED: LONG = 0x8010001C;
 pub const SCARD_E_NO_SERVICE: LONG = 0x8010001D;
 pub const SCARD_E_SERVICE_STOPPED: LONG = 0x8010001E;
 pub const SCARD_E_UNEXPECTED: LONG = 0x8010001F;
+// See: https://pcsclite.alioth.debian.org/api/group__API.html#differences
+#[cfg(not(windows))]
+pub const SCARD_E_UNSUPPORTED_FEATURE: LONG = 0x8010001F;
 pub const SCARD_E_ICC_INSTALLATION: LONG = 0x80100020;
 pub const SCARD_E_ICC_CREATEORDER: LONG = 0x80100021;
+#[cfg(windows)]
 pub const SCARD_E_UNSUPPORTED_FEATURE: LONG = 0x80100022;
 pub const SCARD_E_DIR_NOT_FOUND: LONG = 0x80100023;
 pub const SCARD_E_FILE_NOT_FOUND: LONG = 0x80100024;

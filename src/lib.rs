@@ -202,6 +202,7 @@ pub enum Error {
     CardUnsupported = ffi::SCARD_E_CARD_UNSUPPORTED as u32,
     NoService = ffi::SCARD_E_NO_SERVICE as u32,
     ServiceStopped = ffi::SCARD_E_SERVICE_STOPPED as u32,
+    #[cfg(windows)]
     Unexpected = ffi::SCARD_E_UNEXPECTED as u32,
     IccInstallation = ffi::SCARD_E_ICC_INSTALLATION as u32,
     IccCreateorder = ffi::SCARD_E_ICC_CREATEORDER as u32,
@@ -294,6 +295,7 @@ impl std::error::Error for Error {
             Error::CardUnsupported => "The smart card does not meet minimal requirements for support",
             Error::NoService => "The Smart card resource manager is not running",
             Error::ServiceStopped => "The Smart card resource manager has shut down",
+            #[cfg(windows)]
             Error::Unexpected => "An unexpected card error has occurred",
             Error::UnsupportedFeature => "This smart card does not support the requested feature",
             Error::IccInstallation => "No primary provider can be found for the smart card",
