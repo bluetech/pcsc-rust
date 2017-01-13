@@ -504,8 +504,12 @@ pub struct Card<'ctx> {
 }
 
 /// An exclusive transaction with a card.
-pub struct Transaction<'card> {
-    card: &'card Card<'card>,
+// By taking a mut reference to the card we statically enforce that:
+// - There can only be one active transaction at a time.
+// - All operations on the card must be performed through the transaction
+//   for the duration of the transaction's lifetime.
+pub struct Transaction<'tx, 'card: 'tx> {
+    card: &'tx mut Card<'card>,
 }
 
 /// An iterator over card reader names.
@@ -863,17 +867,17 @@ impl Drop for ReaderState {
 impl<'ctx> Card<'ctx> {
     /// Start a new exclusive transaction with the card.
     ///
-    /// Any further operations for the duration of the transaction should
-    /// be performed through the returned `Transaction`.
+    /// Operations on the card for the duration of the transaction
+    /// can only be performed through the returned `Transaction`.
     ///
     /// This function wraps `SCardBeginTransaction` ([pcsclite][1],
     /// [MSDN][2]).
     ///
     /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaddb835dce01a0da1d6ca02d33ee7d861
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
-    pub fn transaction(
-        &mut self,
-    ) -> Result<Transaction, Error> {
+    pub fn transaction<'tx>(
+        &'tx mut self,
+    ) -> Result<Transaction<'tx, 'ctx>, Error> {
         unsafe {
             try_pcsc!(ffi::SCardBeginTransaction(
                 self.handle,
@@ -1117,7 +1121,7 @@ impl<'ctx> Drop for Card<'ctx> {
     }
 }
 
-impl<'card> Transaction<'card> {
+impl<'tx, 'card: 'tx> Transaction<'tx, 'card> {
     /// End the transaction.
     ///
     /// In case of error, ownership of the transaction is returned to the
@@ -1138,7 +1142,7 @@ impl<'card> Transaction<'card> {
     pub fn end(
         self,
         disposition: Disposition,
-    ) -> Result<(), (Transaction<'card>, Error)> {
+    ) -> Result<(), (Transaction<'tx, 'card>, Error)> {
         unsafe {
             let err = ffi::SCardEndTransaction(
                 self.card.handle,
@@ -1156,7 +1160,7 @@ impl<'card> Transaction<'card> {
     }
 }
 
-impl<'card> Drop for Transaction<'card> {
+impl<'tx, 'card: 'tx> Drop for Transaction<'tx, 'card> {
     fn drop(&mut self) {
         unsafe {
             // Error is ignored here; to do proper error handling,
@@ -1172,7 +1176,7 @@ impl<'card> Drop for Transaction<'card> {
     }
 }
 
-impl<'card> Deref for Transaction<'card> {
+impl<'tx, 'card: 'tx> Deref for Transaction<'tx, 'card> {
     type Target = Card<'card>;
 
     fn deref(&self) -> &Card<'card> {
