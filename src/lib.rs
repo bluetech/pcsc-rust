@@ -534,8 +534,6 @@ impl<'buf> Iterator for ReaderNames<'buf> {
     }
 }
 
-// TODO: Maybe some methods should take `&mut self` instead of `&self`?
-
 impl Context {
     /// Establish a new context.
     ///
