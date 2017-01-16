@@ -3,8 +3,9 @@
 
 extern crate pcsc;
 
-use pcsc::*;
 use std::time::Duration;
+
+use pcsc::*;
 
 fn wait_for_enter_keypress() {
     use std::io::Read;
@@ -29,10 +30,7 @@ fn main() {
     // Set up the blocking call, and wait for cancel or timeout.
     println!("Entering blocking call; press Enter to cancel");
     let mut reader_states = vec![
-        ReaderState::new(
-            PNP_NOTIFICATION(),
-            STATE_UNAWARE,
-        ),
+        ReaderState::new(PNP_NOTIFICATION(), STATE_UNAWARE),
     ];
     match ctx.get_status_change(Duration::from_secs(5), &mut reader_states) {
         Ok(()) => {

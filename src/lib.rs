@@ -431,7 +431,7 @@ pub const MAX_BUFFER_SIZE: usize = 264;
 /// Maximum amount of bytes in an extended APDU command or response.
 pub const MAX_BUFFER_SIZE_EXTENDED: usize = 4 + 3 + (1 << 16) + 3 + 2;
 
-/// A special value for detecting card reader insertions and removals.
+/// A special reader name for detecting card reader insertions and removals.
 ///
 /// # Note
 ///
@@ -558,6 +558,7 @@ impl Context {
                 null(),
                 &mut ctx,
             ));
+
             Ok(Context{
                 _not_sync_send: PhantomData,
                 handle: ctx,
@@ -613,6 +614,7 @@ impl Context {
             try_pcsc!(ffi::SCardIsValidContext(
                 self.handle,
             ));
+
             Ok(())
         }
     }
