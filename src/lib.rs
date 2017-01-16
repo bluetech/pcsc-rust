@@ -65,6 +65,31 @@
 //! Since ASCII is a subset of UTF-8, you can thus safely use UTF-8
 //! conversion functions such as `to_str()` to obtain an `&str`/`String`
 //! from this library -- but don't do this if you don't need to ☺
+//!
+//! ## Note on thread safety and blocking operations
+//!
+//! A library context can be safely moved to another thread or used from
+//! multiple threads.
+//!
+//! Operations on a given context are not performed concurrently. If one
+//! thread performs a blocking operation on a context, such as
+//! `get_status_changes()`, then another operation on the context will
+//! block until the ongoing operation finishes.
+//!
+//! An ongoing blocking operation on a context can be canceled from another
+//! thread by calling the `cancel` function on the context.
+//!
+//! If you want to perform concurrent operations, for example, monitor
+//! smart card reader changes in one thread, and send commands to cards in
+//! another, create a different context for each thread.
+//!
+//! Note however, that if one context has an exclusive transaction with a
+//! card, any operation on the same underlying card from not within the
+//! transaction will block even across contexts.
+//!
+//! See [MSDN][7] for more details.
+//!
+//! [7]: https://msdn.microsoft.com/en-us/library/ms953432.aspx#smartcardcspcook_topic2
 
 #[macro_use]
 extern crate bitflags;
@@ -472,25 +497,6 @@ fn get_protocol_pci(protocol: Protocol) -> &'static ffi::SCARD_IO_REQUEST {
 ///
 /// This structure wraps `SCARDCONTEXT`.
 pub struct Context {
-    // A context and all derived objects must only be used in
-    // the thread which created it.
-    // We should use negative impls (!Sync, !Send) if they stabilize.
-    _not_sync_send: PhantomData<*const ()>,
-    handle: ffi::SCARDCONTEXT,
-}
-
-/// A structures that can be moved to another thread to allow it to cancel
-/// a blocking operation in the Context.
-///
-/// # Note
-///
-/// Cancelers are intentionally not tied to the lifetime of the Context
-/// in which they were created, since that will hinder their use.
-///
-/// This means that it is possible to use a Canceler after the Context
-/// is already dead. In this case, `cancel()` will return
-/// `Error::InvalidHandle`.
-pub struct Canceler {
     handle: ffi::SCARDCONTEXT,
 }
 
@@ -504,6 +510,11 @@ pub struct Card<'ctx> {
 }
 
 /// An exclusive transaction with a card.
+///
+/// A transaction ensures uninterrupted access to the card for its
+/// duration. All other operations performed on the same underlying
+/// card (even from other processes) will block until the transaction
+/// is finished.
 // By taking a mut reference to the card we statically enforce that:
 // - There can only be one active transaction at a time.
 // - All operations on the card must be performed through the transaction
@@ -560,7 +571,6 @@ impl Context {
             ));
 
             Ok(Context{
-                _not_sync_send: PhantomData,
                 handle: ctx,
             })
         }
@@ -619,17 +629,23 @@ impl Context {
         }
     }
 
-    /// Get a Canceler for this `Context`.
+    /// Cancel any ongoing blocking operation in the Context.
     ///
-    /// The Canceler can be passed to another thread to allow that thread
-    /// to cancel an ongoing blocking operation on the `Context`.
+    /// See the `monitor.rs` example program.
     ///
-    /// See the `cancel.rs` example program.
-    pub fn get_canceler(
-        &self
-    ) -> Canceler {
-        Canceler {
-            handle: self.handle,
+    /// This function wraps `SCardCancel` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacbbc0c6d6c0cbbeb4f4debf6fbeeee6
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379470.aspx
+    pub fn cancel(
+        &self,
+    ) -> Result<(), Error> {
+        unsafe {
+            try_pcsc!(ffi::SCardCancel(
+                self.handle,
+            ));
+
+            Ok(())
         }
     }
 
@@ -803,6 +819,9 @@ impl Drop for Context {
         }
     }
 }
+
+unsafe impl Send for Context {}
+unsafe impl Sync for Context {}
 
 impl ReaderState {
     /// Create a ReaderState for a card reader with a given presumed
@@ -1123,6 +1142,9 @@ impl<'ctx> Drop for Card<'ctx> {
     }
 }
 
+unsafe impl<'ctx> Send for Card<'ctx> {}
+unsafe impl<'ctx> Sync for Card<'ctx> {}
+
 impl<'tx, 'card: 'tx> Transaction<'tx, 'card> {
     /// End the transaction.
     ///
@@ -1185,26 +1207,3 @@ impl<'tx, 'card: 'tx> Deref for Transaction<'tx, 'card> {
         self.card
     }
 }
-
-impl Canceler {
-    /// Cancel any ongoing blocking operation in the Context.
-    ///
-    /// This function wraps `SCardCancel` ([pcsclite][1], [MSDN][2]).
-    ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacbbc0c6d6c0cbbeb4f4debf6fbeeee6
-    /// [2]: https://msdn.microsoft.com/en-us/library/aa379470.aspx
-    pub fn cancel(
-        &self,
-    ) -> Result<(), Error> {
-        unsafe {
-            try_pcsc!(ffi::SCardCancel(
-                self.handle,
-            ));
-
-            Ok(())
-        }
-    }
-}
-
-unsafe impl Send for Canceler {}
-unsafe impl Sync for Canceler {}
