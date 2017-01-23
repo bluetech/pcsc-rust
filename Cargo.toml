@@ -4,6 +4,7 @@ description = "Bindings to PC/SC for smart card communication"
 version = "0.1.0-alpha3"
 license = "MIT"
 keywords = ["pcsc", "smartcard"]
+categories = ["hardware-support", "external-ffi-bindings", "api-bindings"]
 documentation = "https://docs.rs/pcsc"
 repository = "https://github.com/bluetech/pcsc-rust"
 homepage = "https://github.com/bluetech/pcsc-rust"
