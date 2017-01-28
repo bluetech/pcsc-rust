@@ -1,5 +1,3 @@
-// TODO: Should probably use a build-script to detect the libraries.
-
 #![allow(dead_code)]
 #![allow(bad_style)]
 // Needed for the errors, they are needed in hex for some reason, but if
@@ -228,9 +226,9 @@ pub const SCARD_ATTR_SUPRESS_T1_IFS_REQUEST: DWORD = SCARD_ATTR_VALUE!(SCARD_CLA
 pub const SCARD_ATTR_DEVICE_FRIENDLY_NAME: DWORD = SCARD_ATTR_DEVICE_FRIENDLY_NAME_A;
 pub const SCARD_ATTR_DEVICE_SYSTEM_NAME: DWORD = SCARD_ATTR_DEVICE_SYSTEM_NAME_A;
 
+// The g_* statics only link if this is applied, even though the link
+// is already specified in the build script. No idea why; oh well.
 #[cfg_attr(windows, link(name = "winscard"))]
-#[cfg_attr(target_os = "macos", link(name = "PCSC", kind = "framework"))]
-#[cfg_attr(not(any(windows, target_os = "macos")), link(name = "pcsclite"))]
 extern "system" {
     pub static g_rgSCardT0Pci: SCARD_IO_REQUEST;
     pub static g_rgSCardT1Pci: SCARD_IO_REQUEST;

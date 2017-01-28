@@ -9,3 +9,8 @@ documentation = "https://docs.rs/pcsc-sys"
 repository = "https://github.com/bluetech/pcsc-rust"
 homepage = "https://github.com/bluetech/pcsc-rust"
 authors = ["Ran Benita <ran234@gmail.com>"]
+build = "build.rs"
+links = "pcsc"
+
+[build-dependencies]
+pkg-config = "0.3.9"
