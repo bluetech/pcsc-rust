@@ -104,6 +104,10 @@ use std::ops::Deref;
 mod ffi;
 use ffi::{DWORD, LONG};
 
+// Note on potentially problematic casts (clippy lints `cast-sign-loss`,
+// `cast-possible-truncation`): from my analysis they are all OK, for
+// both 32bit and 64bit DWORD/LONG. But it is sketchy.
+
 bitflags! {
     /// A mask of the state a card reader.
     pub flags State: DWORD {
@@ -136,21 +140,21 @@ bitflags! {
 }
 
 /// How a reader connection is shared.
-#[repr(C)]
+#[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum ShareMode {
-    Exclusive = ffi::SCARD_SHARE_EXCLUSIVE as isize,
-    Shared = ffi::SCARD_SHARE_SHARED as isize,
-    Direct = ffi::SCARD_SHARE_DIRECT as isize,
+    Exclusive = ffi::SCARD_SHARE_EXCLUSIVE as u32,
+    Shared = ffi::SCARD_SHARE_SHARED as u32,
+    Direct = ffi::SCARD_SHARE_DIRECT as u32,
 }
 
 /// A smart card communication protocol.
-#[repr(C)]
+#[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum Protocol {
-    T0 = ffi::SCARD_PROTOCOL_T0 as isize,
-    T1 = ffi::SCARD_PROTOCOL_T1 as isize,
-    RAW = ffi::SCARD_PROTOCOL_RAW as isize,
+    T0 = ffi::SCARD_PROTOCOL_T0 as u32,
+    T1 = ffi::SCARD_PROTOCOL_T1 as u32,
+    RAW = ffi::SCARD_PROTOCOL_RAW as u32,
 }
 
 impl Protocol {
@@ -178,13 +182,13 @@ bitflags! {
 }
 
 /// Disposition method when disconnecting from a card reader.
-#[repr(C)]
+#[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum Disposition {
-    LeaveCard = ffi::SCARD_LEAVE_CARD as isize,
-    ResetCard = ffi::SCARD_RESET_CARD as isize,
-    UnpowerCard = ffi::SCARD_UNPOWER_CARD as isize,
-    EjectCard = ffi::SCARD_EJECT_CARD as isize,
+    LeaveCard = ffi::SCARD_LEAVE_CARD as u32,
+    ResetCard = ffi::SCARD_RESET_CARD as u32,
+    UnpowerCard = ffi::SCARD_UNPOWER_CARD as u32,
+    EjectCard = ffi::SCARD_EJECT_CARD as u32,
 }
 
 /// Possible library errors.
@@ -372,81 +376,81 @@ macro_rules! try_pcsc {
 }
 
 /// Scope of a context.
-#[repr(C)]
+#[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum Scope {
-    User = ffi::SCARD_SCOPE_USER as isize,
-    Terminal = ffi::SCARD_SCOPE_TERMINAL as isize,
-    System = ffi::SCARD_SCOPE_SYSTEM as isize,
-    Global = ffi::SCARD_SCOPE_GLOBAL as isize,
+    User = ffi::SCARD_SCOPE_USER as u32,
+    Terminal = ffi::SCARD_SCOPE_TERMINAL as u32,
+    System = ffi::SCARD_SCOPE_SYSTEM as u32,
+    Global = ffi::SCARD_SCOPE_GLOBAL as u32,
 }
 
 /// A class of Attributes.
-#[repr(C)]
+#[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum AttributeClass {
-    VendorInfo = ffi::SCARD_CLASS_VENDOR_INFO as isize,
-    Communications = ffi::SCARD_CLASS_COMMUNICATIONS as isize,
-    Protocol = ffi::SCARD_CLASS_PROTOCOL as isize,
-    PowerMgmt = ffi::SCARD_CLASS_POWER_MGMT as isize,
-    Security = ffi::SCARD_CLASS_SECURITY as isize,
-    Mechanical = ffi::SCARD_CLASS_MECHANICAL as isize,
-    VendorDefined = ffi::SCARD_CLASS_VENDOR_DEFINED as isize,
-    IfdProtocol = ffi::SCARD_CLASS_IFD_PROTOCOL as isize,
-    IccState = ffi::SCARD_CLASS_ICC_STATE as isize,
-    System = ffi::SCARD_CLASS_SYSTEM as isize,
+    VendorInfo = ffi::SCARD_CLASS_VENDOR_INFO as u32,
+    Communications = ffi::SCARD_CLASS_COMMUNICATIONS as u32,
+    Protocol = ffi::SCARD_CLASS_PROTOCOL as u32,
+    PowerMgmt = ffi::SCARD_CLASS_POWER_MGMT as u32,
+    Security = ffi::SCARD_CLASS_SECURITY as u32,
+    Mechanical = ffi::SCARD_CLASS_MECHANICAL as u32,
+    VendorDefined = ffi::SCARD_CLASS_VENDOR_DEFINED as u32,
+    IfdProtocol = ffi::SCARD_CLASS_IFD_PROTOCOL as u32,
+    IccState = ffi::SCARD_CLASS_ICC_STATE as u32,
+    System = ffi::SCARD_CLASS_SYSTEM as u32,
 }
 
 /// Card reader attribute types.
-#[repr(C)]
+#[repr(u32)]
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub enum Attribute {
-    VendorName = ffi::SCARD_ATTR_VENDOR_NAME as isize,
-    VendorIfdType = ffi::SCARD_ATTR_VENDOR_IFD_TYPE as isize,
-    VendorIfdVersion = ffi::SCARD_ATTR_VENDOR_IFD_VERSION as isize,
-    VendorIfdSerialNo = ffi::SCARD_ATTR_VENDOR_IFD_SERIAL_NO as isize,
-    ChannelId = ffi::SCARD_ATTR_CHANNEL_ID as isize,
-    AsyncProtocolTypes = ffi::SCARD_ATTR_ASYNC_PROTOCOL_TYPES as isize,
-    DefaultClk = ffi::SCARD_ATTR_DEFAULT_CLK as isize,
-    MaxClk = ffi::SCARD_ATTR_MAX_CLK as isize,
-    DefaultDataRate = ffi::SCARD_ATTR_DEFAULT_DATA_RATE as isize,
-    MaxDataRate = ffi::SCARD_ATTR_MAX_DATA_RATE as isize,
-    MaxIfsd = ffi::SCARD_ATTR_MAX_IFSD as isize,
-    SyncProtocolTypes = ffi::SCARD_ATTR_SYNC_PROTOCOL_TYPES as isize,
-    PowerMgmtSupport = ffi::SCARD_ATTR_POWER_MGMT_SUPPORT as isize,
-    UserToCardAuthDevice = ffi::SCARD_ATTR_USER_TO_CARD_AUTH_DEVICE as isize,
-    UserAuthInputDevice = ffi::SCARD_ATTR_USER_AUTH_INPUT_DEVICE as isize,
-    Characteristics = ffi::SCARD_ATTR_CHARACTERISTICS as isize,
+    VendorName = ffi::SCARD_ATTR_VENDOR_NAME as u32,
+    VendorIfdType = ffi::SCARD_ATTR_VENDOR_IFD_TYPE as u32,
+    VendorIfdVersion = ffi::SCARD_ATTR_VENDOR_IFD_VERSION as u32,
+    VendorIfdSerialNo = ffi::SCARD_ATTR_VENDOR_IFD_SERIAL_NO as u32,
+    ChannelId = ffi::SCARD_ATTR_CHANNEL_ID as u32,
+    AsyncProtocolTypes = ffi::SCARD_ATTR_ASYNC_PROTOCOL_TYPES as u32,
+    DefaultClk = ffi::SCARD_ATTR_DEFAULT_CLK as u32,
+    MaxClk = ffi::SCARD_ATTR_MAX_CLK as u32,
+    DefaultDataRate = ffi::SCARD_ATTR_DEFAULT_DATA_RATE as u32,
+    MaxDataRate = ffi::SCARD_ATTR_MAX_DATA_RATE as u32,
+    MaxIfsd = ffi::SCARD_ATTR_MAX_IFSD as u32,
+    SyncProtocolTypes = ffi::SCARD_ATTR_SYNC_PROTOCOL_TYPES as u32,
+    PowerMgmtSupport = ffi::SCARD_ATTR_POWER_MGMT_SUPPORT as u32,
+    UserToCardAuthDevice = ffi::SCARD_ATTR_USER_TO_CARD_AUTH_DEVICE as u32,
+    UserAuthInputDevice = ffi::SCARD_ATTR_USER_AUTH_INPUT_DEVICE as u32,
+    Characteristics = ffi::SCARD_ATTR_CHARACTERISTICS as u32,
 
-    CurrentProtocolType = ffi::SCARD_ATTR_CURRENT_PROTOCOL_TYPE as isize,
-    CurrentClk = ffi::SCARD_ATTR_CURRENT_CLK as isize,
-    CurrentF = ffi::SCARD_ATTR_CURRENT_F as isize,
-    CurrentD = ffi::SCARD_ATTR_CURRENT_D as isize,
-    CurrentN = ffi::SCARD_ATTR_CURRENT_N as isize,
-    CurrentW = ffi::SCARD_ATTR_CURRENT_W as isize,
-    CurrentIfsc = ffi::SCARD_ATTR_CURRENT_IFSC as isize,
-    CurrentIfsd = ffi::SCARD_ATTR_CURRENT_IFSD as isize,
-    CurrentBwt = ffi::SCARD_ATTR_CURRENT_BWT as isize,
-    CurrentCwt = ffi::SCARD_ATTR_CURRENT_CWT as isize,
-    CurrentEbcEncoding = ffi::SCARD_ATTR_CURRENT_EBC_ENCODING as isize,
-    ExtendedBwt = ffi::SCARD_ATTR_EXTENDED_BWT as isize,
+    CurrentProtocolType = ffi::SCARD_ATTR_CURRENT_PROTOCOL_TYPE as u32,
+    CurrentClk = ffi::SCARD_ATTR_CURRENT_CLK as u32,
+    CurrentF = ffi::SCARD_ATTR_CURRENT_F as u32,
+    CurrentD = ffi::SCARD_ATTR_CURRENT_D as u32,
+    CurrentN = ffi::SCARD_ATTR_CURRENT_N as u32,
+    CurrentW = ffi::SCARD_ATTR_CURRENT_W as u32,
+    CurrentIfsc = ffi::SCARD_ATTR_CURRENT_IFSC as u32,
+    CurrentIfsd = ffi::SCARD_ATTR_CURRENT_IFSD as u32,
+    CurrentBwt = ffi::SCARD_ATTR_CURRENT_BWT as u32,
+    CurrentCwt = ffi::SCARD_ATTR_CURRENT_CWT as u32,
+    CurrentEbcEncoding = ffi::SCARD_ATTR_CURRENT_EBC_ENCODING as u32,
+    ExtendedBwt = ffi::SCARD_ATTR_EXTENDED_BWT as u32,
 
-    IccPresence = ffi::SCARD_ATTR_ICC_PRESENCE as isize,
-    IccInterfaceStatus = ffi::SCARD_ATTR_ICC_INTERFACE_STATUS as isize,
-    CurrentIoState = ffi::SCARD_ATTR_CURRENT_IO_STATE as isize,
-    AtrString = ffi::SCARD_ATTR_ATR_STRING as isize,
-    IccTypePerAtr = ffi::SCARD_ATTR_ICC_TYPE_PER_ATR as isize,
+    IccPresence = ffi::SCARD_ATTR_ICC_PRESENCE as u32,
+    IccInterfaceStatus = ffi::SCARD_ATTR_ICC_INTERFACE_STATUS as u32,
+    CurrentIoState = ffi::SCARD_ATTR_CURRENT_IO_STATE as u32,
+    AtrString = ffi::SCARD_ATTR_ATR_STRING as u32,
+    IccTypePerAtr = ffi::SCARD_ATTR_ICC_TYPE_PER_ATR as u32,
 
-    EscReset = ffi::SCARD_ATTR_ESC_RESET as isize,
-    EscCancel = ffi::SCARD_ATTR_ESC_CANCEL as isize,
-    EscAuthrequest = ffi::SCARD_ATTR_ESC_AUTHREQUEST as isize,
-    Maxinput = ffi::SCARD_ATTR_MAXINPUT as isize,
+    EscReset = ffi::SCARD_ATTR_ESC_RESET as u32,
+    EscCancel = ffi::SCARD_ATTR_ESC_CANCEL as u32,
+    EscAuthrequest = ffi::SCARD_ATTR_ESC_AUTHREQUEST as u32,
+    Maxinput = ffi::SCARD_ATTR_MAXINPUT as u32,
 
-    DeviceUnit = ffi::SCARD_ATTR_DEVICE_UNIT as isize,
-    DeviceInUse = ffi::SCARD_ATTR_DEVICE_IN_USE as isize,
-    DeviceFriendlyName = ffi::SCARD_ATTR_DEVICE_FRIENDLY_NAME as isize,
-    DeviceSystemName = ffi::SCARD_ATTR_DEVICE_SYSTEM_NAME as isize,
-    SupressT1IfsRequest = ffi::SCARD_ATTR_SUPRESS_T1_IFS_REQUEST as isize,
+    DeviceUnit = ffi::SCARD_ATTR_DEVICE_UNIT as u32,
+    DeviceInUse = ffi::SCARD_ATTR_DEVICE_IN_USE as u32,
+    DeviceFriendlyName = ffi::SCARD_ATTR_DEVICE_FRIENDLY_NAME as u32,
+    DeviceSystemName = ffi::SCARD_ATTR_DEVICE_SYSTEM_NAME as u32,
+    SupressT1IfsRequest = ffi::SCARD_ATTR_SUPRESS_T1_IFS_REQUEST as u32,
 }
 
 /// Maximum amount of bytes in an ATR.
