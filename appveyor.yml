@@ -16,5 +16,6 @@ install:
 build: false
 
 test_script:
-  - cargo build --verbose
-  - cargo test --verbose
+  - cd pcsc-sys && cargo build --verbose
+  - cd ../pcsc && cargo build --verbose
+  - cd ../pcsc && cargo test --verbose

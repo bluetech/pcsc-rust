@@ -14,6 +14,11 @@ matrix:
   allow_failures:
     - rust: nightly
 
+script:
+  - cd pcsc-sys && cargo build --verbose
+  - cd ../pcsc && cargo build --verbose
+  - cd ../pcsc && cargo test --verbose
+
 cache: cargo
 
 addons:

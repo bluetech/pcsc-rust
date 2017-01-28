@@ -1,0 +1,11 @@
+[package]
+name = "pcsc-sys"
+description = "Low-level bindings to PC/SC for smart card communication"
+version = "0.1.0-alpha3"
+license = "MIT"
+keywords = ["pcsc", "smartcard"]
+categories = ["hardware-support", "external-ffi-bindings"]
+documentation = "https://docs.rs/pcsc-sys"
+repository = "https://github.com/bluetech/pcsc-rust"
+homepage = "https://github.com/bluetech/pcsc-rust"
+authors = ["Ran Benita <ran234@gmail.com>"]

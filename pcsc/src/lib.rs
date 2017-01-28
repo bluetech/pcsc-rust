@@ -93,6 +93,7 @@
 
 #[macro_use]
 extern crate bitflags;
+extern crate pcsc_sys as ffi;
 
 use std::os::raw::c_char;
 use std::ffi::{CStr, CString};
@@ -101,7 +102,6 @@ use std::ptr::{null, null_mut};
 use std::marker::PhantomData;
 use std::ops::Deref;
 
-mod ffi;
 use ffi::{DWORD, LONG};
 
 // Note on potentially problematic casts (clippy lints `cast-sign-loss`,

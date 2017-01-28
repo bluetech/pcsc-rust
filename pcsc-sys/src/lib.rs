@@ -1,6 +1,4 @@
 // TODO: Should probably use a build-script to detect the libraries.
-// TODO: Should probably move to a separate pcsc-sys crate, as per
-//       http://doc.crates.io/build-script.html#-sys-packages
 
 #![allow(dead_code)]
 #![allow(bad_style)]
