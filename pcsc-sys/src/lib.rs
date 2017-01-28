@@ -1,5 +1,5 @@
 #![allow(bad_style)]
-// Needed for the errors, they are needed in hex for some reason, but if
+// Needed for the errors, they are given in hex for some reason, but if
 // LONG is i32 they are negative (which presumably was the intention).
 #![allow(overflowing_literals)]
 
