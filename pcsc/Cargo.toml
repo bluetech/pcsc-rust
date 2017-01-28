@@ -1,7 +1,7 @@
 [package]
 name = "pcsc"
 description = "Bindings to PC/SC for smart card communication"
-version = "0.1.0-alpha3"
+version = "0.1.0-alpha4"
 license = "MIT"
 keywords = ["pcsc", "smartcard"]
 categories = ["hardware-support", "api-bindings"]
@@ -13,4 +13,4 @@ authors = ["Ran Benita <ran234@gmail.com>"]
 
 [dependencies]
 bitflags = "0.7"
-pcsc-sys = { version = "0.1.0-alpha3", path = "../pcsc-sys" }
+pcsc-sys = { version = "0.1.0-alpha4", path = "../pcsc-sys" }
