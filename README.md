@@ -15,7 +15,7 @@ Rust bindings to PC/SC for smart card communication.
 
 See the [Documentation](https://docs.rs/pcsc) for more details.
 
-See the examples directory for some common tasks.
+See the `pcsc/examples` directory for some common tasks.
 
 ## Usage
 
@@ -33,6 +33,9 @@ extern crate pcsc;
 ```
 
 ## Example
+
+Connect to the card in the first available reader and send the card an
+APDU command.
 
 ```rust
 extern crate pcsc;
@@ -58,7 +61,7 @@ fn main() {
     let card = ctx.connect(reader, ShareMode::Shared, PROTOCOL_ANY)
         .expect("failed to connect to card");
 
-    // Send an APDU.
+    // Send an APDU command.
     let apdu = b"\x00\xa4\x04\x00\x0A\xA0\x00\x00\x00\x62\x03\x01\x0C\x06\x01";
     let mut rapdu_buf = [0; MAX_BUFFER_SIZE];
     let rapdu = card.transmit(apdu, &mut rapdu_buf)
@@ -68,9 +71,6 @@ fn main() {
 ```
 
 ## Status
-
-The library is perfectly usable, however it is still using a pre-release
-version because:
 
 - There are still some [TODOs](https://github.com/bluetech/pcsc-rust/search?q=TODO)
   remaining.

@@ -1,7 +1,7 @@
 [package]
 name = "pcsc-sys"
 description = "Low-level bindings to PC/SC for smart card communication"
-version = "0.1.0-alpha4"
+version = "0.1.0"
 license = "MIT"
 keywords = ["pcsc", "smartcard"]
 categories = ["hardware-support", "external-ffi-bindings"]
