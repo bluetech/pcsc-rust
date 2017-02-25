@@ -544,10 +544,11 @@ impl<'buf> Iterator for ReaderNames<'buf> {
     fn next(&mut self) -> Option<&'buf CStr> {
         match self.buf[self.pos..].iter().position(|&c| c == 0) {
             None | Some(0) => None,
-            Some(len) => unsafe {
+            Some(len) => {
                 let old_pos = self.pos;
                 self.pos += len + 1;
-                Some(CStr::from_bytes_with_nul_unchecked(&self.buf[old_pos..self.pos]))
+                // The panic can't happen, but we avoid unsafe.
+                Some(CStr::from_bytes_with_nul(&self.buf[old_pos..self.pos]).unwrap())
             }
         }
     }
