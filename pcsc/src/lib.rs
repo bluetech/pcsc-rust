@@ -857,6 +857,8 @@ impl ReaderState {
 
     /// The name of the card reader.
     pub fn name(&self) -> &CStr {
+        // Lifetime elision assigns this the same lifetime as &self; this
+        // is what we want, and is safe.
         unsafe { CStr::from_ptr(self.inner.szReader) }
     }
 
