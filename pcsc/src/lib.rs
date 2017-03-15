@@ -41,7 +41,7 @@
 //! Hence, you cannot assume that code which works on one platform will
 //! behave the same in all other platforms - unfortunately, some
 //! adjustments might be needed to reach a common base. See [pcsclite][4]
-//! for a list of documented differences, and [Ludovic Rousseau's blog][5]
+//! for a list of documented differences, and [Ludovic Rousseau's blog][6]
 //! archive for many more details.
 //!
 //! [6]: https://ludovicrousseau.blogspot.com/
