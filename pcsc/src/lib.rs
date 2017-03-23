@@ -804,7 +804,7 @@ impl Context {
             try_pcsc!(ffi::SCardGetStatusChange(
                 self.handle,
                 timeout_ms,
-                transmute(readers.as_mut_ptr()),
+                readers.as_mut_ptr() as *mut ffi::SCARD_READERSTATE,
                 readers.len() as DWORD,
             ));
 
