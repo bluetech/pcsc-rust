@@ -831,20 +831,14 @@ unsafe impl Sync for Context {}
 impl ReaderState {
     /// Create a ReaderState for a card reader with a given presumed
     /// state.
-    ///
-    /// ## Note
-    ///
-    /// This function allocates a copy of `name`, so that the returned
-    /// `ReaderState` is not tied to `name`'s lifetime'; it would have
-    /// been difficult to use `Context::get_status_changes` otherwise.
     // TODO: Support ATR fields.
-    pub fn new(
-        name: &CStr,
+    pub fn new<T: Into<CString>>(
+        name: T,
         current_state: State,
     ) -> ReaderState {
         ReaderState {
             inner: ffi::SCARD_READERSTATE {
-                szReader: name.to_owned().into_raw(),
+                szReader: name.into().into_raw(),
                 // This seems useless to expose.
                 pvUserData: null_mut(),
                 dwCurrentState: current_state.bits(),
