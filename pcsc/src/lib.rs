@@ -279,7 +279,7 @@ impl Error {
             // The ranges here are the "blocks" above.
             if ffi::SCARD_F_INTERNAL_ERROR <= raw && raw <= ffi::SCARD_E_SERVER_TOO_BUSY ||
                 ffi::SCARD_W_UNSUPPORTED_CARD <= raw && raw <= ffi::SCARD_W_CACHE_ITEM_TOO_BIG {
-                transmute(raw as u32)
+                transmute::<u32, Error>(raw as u32)
             } else {
                 debug_assert!(false, format!("unknown PCSC error code: {:#x}", raw));
                 // We mask unknown error codes here; this is not very nice,
