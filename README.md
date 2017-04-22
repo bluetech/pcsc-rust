@@ -13,7 +13,7 @@ Rust bindings to PC/SC for smart card communication.
 - Works on all major operating systems.
 - Mostly zero overhead.
 
-See the [Documentation](https://docs.rs/pcsc) for more details.
+See the [Documentation](https://docs.rs/crate/pcsc) for more details.
 
 See the `pcsc/examples` directory for some common tasks.
 
