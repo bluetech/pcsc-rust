@@ -454,11 +454,11 @@ pub enum Attribute {
 }
 
 /// Maximum amount of bytes in an ATR.
-pub const MAX_ATR_SIZE: usize = 33;
+pub const MAX_ATR_SIZE: usize = ffi::MAX_ATR_SIZE;
 /// Maximum amount of bytes in a short APDU command or response.
-pub const MAX_BUFFER_SIZE: usize = 264;
+pub const MAX_BUFFER_SIZE: usize = ffi::MAX_BUFFER_SIZE;
 /// Maximum amount of bytes in an extended APDU command or response.
-pub const MAX_BUFFER_SIZE_EXTENDED: usize = 4 + 3 + (1 << 16) + 3 + 2;
+pub const MAX_BUFFER_SIZE_EXTENDED: usize = ffi::MAX_BUFFER_SIZE_EXTENDED;
 
 /// A special reader name for detecting card reader insertions and removals.
 ///
