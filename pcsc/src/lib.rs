@@ -73,7 +73,7 @@
 //!
 //! Operations on a given context are not performed concurrently. If one
 //! thread performs a blocking operation on a context, such as
-//! `get_status_changes()`, then another operation on the context will
+//! `get_status_change()`, then another operation on the context will
 //! block until the ongoing operation finishes.
 //!
 //! An ongoing blocking operation on a context can be canceled from another
