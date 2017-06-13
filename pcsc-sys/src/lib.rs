@@ -146,8 +146,8 @@ pub const MAX_BUFFER_SIZE_EXTENDED: usize = 4 + 3 + (1 << 16) + 3 + 2;
 
 #[repr(C)]
 pub struct SCARD_IO_REQUEST {
-    pub dwProtocol: c_ulong,
-    pub cbPciLength: c_ulong,
+    pub dwProtocol: DWORD,
+    pub cbPciLength: DWORD,
 }
 
 #[cfg(not(windows))]
