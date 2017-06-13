@@ -5,9 +5,19 @@
 
 use std::os::raw::{c_char, c_void, c_long, c_ulong};
 
+#[cfg(not(target_os = "macos"))]
 pub type DWORD = c_ulong;
+#[cfg(not(target_os = "macos"))]
 pub type LONG = c_long;
+#[cfg(not(target_os = "macos"))]
 pub type ULONG = c_ulong;
+
+#[cfg(target_os = "macos")]
+pub type DWORD = u32;
+#[cfg(target_os = "macos")]
+pub type LONG = i32;
+#[cfg(target_os = "macos")]
+pub type ULONG = u32;
 
 pub type SCARDCONTEXT = LONG;
 pub type SCARDHANDLE = LONG;
