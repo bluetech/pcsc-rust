@@ -636,7 +636,7 @@ impl Context {
 
     /// Cancel any ongoing blocking operation in the Context.
     ///
-    /// See the `monitor.rs` example program.
+    /// See the `cancel.rs` example program.
     ///
     /// This function wraps `SCardCancel` ([pcsclite][1], [MSDN][2]).
     ///
