@@ -146,7 +146,8 @@ pub const MAX_ATR_SIZE: usize = 33;
 pub const MAX_BUFFER_SIZE: usize = 264;
 pub const MAX_BUFFER_SIZE_EXTENDED: usize = 4 + 3 + (1 << 16) + 3 + 2;
 
-#[repr(C)]
+#[cfg_attr(not(target_os = "macos"), repr(C))]
+#[cfg_attr(target_os = "macos", repr(C, packed))]
 pub struct SCARD_IO_REQUEST {
     pub dwProtocol: DWORD,
     pub cbPciLength: DWORD,
@@ -157,7 +158,8 @@ pub const ATR_BUFFER_SIZE: usize = MAX_ATR_SIZE;
 #[cfg(windows)]
 pub const ATR_BUFFER_SIZE: usize = 36;
 
-#[repr(C)]
+#[cfg_attr(not(target_os = "macos"), repr(C))]
+#[cfg_attr(target_os = "macos", repr(C, packed))]
 pub struct SCARD_READERSTATE {
     pub szReader: *const c_char,
     pub pvUserData: *mut c_void,
