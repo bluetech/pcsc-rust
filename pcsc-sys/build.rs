@@ -3,12 +3,15 @@ extern crate pkg_config;
 use std::env;
 
 fn main() {
-    let target = env::var("TARGET").unwrap();
-    let target = target.split('-').collect::<Vec<_>>();
+    let target = env::var("TARGET").expect(
+r#"The TARGET environment is not set in the build script.
+"Are you running it directly instead of through cargo?"#);
+
+    let target_parts = target.split('-').collect::<Vec<_>>();
 
     // Prefer the built-in service/library if available, otherwise try
     // libpcsclite.
-    match (target.get(1), target.get(2)) {
+    match (target_parts.get(1), target_parts.get(2)) {
         (Some(&"pc"), Some(&"windows")) => {
             // Note we also have to specify this above the extern {} for
             // some reason (see comment there).
@@ -20,7 +23,10 @@ fn main() {
         }
 
         _ => {
-            pkg_config::Config::new().atleast_version("1").probe("libpcsclite").unwrap();
+            pkg_config::Config::new().atleast_version("1").probe("libpcsclite").expect(&format!(
+r#"Could not find a PCSC library.
+For the target `{}` I tried to use pkg-config to find libpcsclite.
+Do you have pkg-config and libpcsclite configured for this target?"#, target));
         }
     };
 }
