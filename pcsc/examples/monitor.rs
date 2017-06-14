@@ -9,7 +9,7 @@ fn main() {
 
     let mut readers_buf = [0; 2048];
     let mut reader_states = vec![
-        // Listen for reader insertions/removals.
+        // Listen for reader insertions/removals, if supported.
         ReaderState::new(PNP_NOTIFICATION(), STATE_UNAWARE),
     ];
     loop {
@@ -27,7 +27,7 @@ fn main() {
         // Add new readers.
         let names = ctx.list_readers(&mut readers_buf).expect("failed to list readers");
         for name in names {
-            if !reader_states[1..].iter().any(|rs| rs.name() == name) {
+            if !reader_states.iter().any(|rs| rs.name() == name) {
                 println!("Adding {:?}", name);
                 reader_states.push(ReaderState::new(name, STATE_UNAWARE));
             }
@@ -43,8 +43,10 @@ fn main() {
 
         // Print current state.
         println!();
-        for rs in &reader_states[1..] {
-            println!("{:?} {:?}", rs.name(), rs.event_state());
+        for rs in &reader_states {
+            if rs.name() != PNP_NOTIFICATION() {
+                println!("{:?} {:?}", rs.name(), rs.event_state());
+            }
         }
     }
 }
