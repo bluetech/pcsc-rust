@@ -14,7 +14,7 @@
 //! - On Windows, the built-in `WinSCard.dll` library and "Smart Card"
 //!   service. See [MSDN][3] for documentation of the implemented API.
 //!
-//! - On Apple, the built-in PCSC framework.
+//! - On macOS, the built-in PCSC framework.
 //!
 //! - On Linux, BSDs and (hopefully) other systems, the PCSC lite library
 //!   and pcscd daemon. See [pcsclite][4] for documentation of the
@@ -54,7 +54,7 @@
 //! The library uses C strings (`&CStr`) for all strings (e.g. card reader
 //! names), to avoid any allocation and conversion overhead.
 //!
-//! In pcsclite and Apple, all strings are guaranteed to be UTF-8 encoded.
+//! In pcsclite and macOS, all strings are guaranteed to be UTF-8 encoded.
 //!
 //! In Windows, the API provides two variants of all functions dealing
 //! with strings - ASCII and Unicode (in this case, meaning 16-bits wide

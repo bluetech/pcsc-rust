@@ -1,6 +1,6 @@
 [package]
 name = "pcsc"
-description = "Bindings to PC/SC for smart card communication"
+description = "Bindings to the PC/SC API for smart card communication"
 version = "0.1.0"
 license = "MIT"
 keywords = ["pcsc", "smartcard"]

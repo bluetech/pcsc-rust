@@ -1,3 +1,23 @@
+//! Low level bindings to the PCSC C API.
+//!
+//! The following platforms are supported:
+//!
+//! - On Windows, the built-in `WinSCard.dll` library and "Smart Card"
+//!   service. See [MSDN][1] for documentation of the implemented API.
+//!
+//! - On macOS, the built-in PCSC framework.
+//!
+//! - On Linux, BSDs and (hopefully) other systems, the PCSC lite library
+//!   and pcscd daemon. See [pcsclite][2] for documentation of the
+//!   implemented API.
+//!
+//!   pcsclite is detected at build time using pkg-config. See the
+//!   [`pkg-config`][3] crate for more information.
+//!
+//! [1]: https://msdn.microsoft.com/EN-US/library/aa374731.aspx#smart_card_functions
+//! [2]: https://pcsclite.alioth.debian.org/pcsclite.html
+//! [3]: https://docs.rs/pkg-config/
+
 #![allow(bad_style)]
 // Needed for the errors, they are given in hex for some reason, but if
 // LONG is i32 they are negative (which presumably was the intention).

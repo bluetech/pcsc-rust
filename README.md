@@ -7,7 +7,7 @@
 Linux, macOS: [![Travis CI](https://travis-ci.org/bluetech/pcsc-rust.svg?branch=master)](https://travis-ci.org/bluetech/pcsc-rust)
 Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/s16sb4kt79v7yop4/branch/master?svg=true)](https://ci.appveyor.com/project/bluetech/pcsc-rust/branch/master)
 
-Rust bindings to PC/SC for smart card communication.
+Rust bindings to the PC/SC API for smart card communication.
 
 - Nice, safe API.
 - Works on all major operating systems.
@@ -16,6 +16,14 @@ Rust bindings to PC/SC for smart card communication.
 See the [Documentation](https://docs.rs/pcsc) for more details.
 
 See the `pcsc/examples` directory for some common tasks.
+
+## Contents
+
+The [`pcsc-sys`](https://docs.rs/pcsc-sys) crate contains the direct,
+low-level bindings to the C API.
+
+The [`pcsc`](https://docs.rs/pcsc) crate contains the high-level Rust
+wrappers.
 
 ## Usage
 
@@ -72,10 +80,8 @@ fn main() {
 
 ## Status
 
-- There are still some [TODOs](https://github.com/bluetech/pcsc-rust/search?q=TODO)
+- There are still some minor [TODOs](https://github.com/bluetech/pcsc-rust/search?q=TODO)
   remaining.
-
-- Apple support is only compile-tested.
 
 Help is welcome!
 
