@@ -97,12 +97,17 @@ extern crate pcsc_sys as ffi;
 
 use std::os::raw::c_char;
 use std::ffi::{CStr, CString};
-use std::mem::{transmute, uninitialized, forget};
+use std::mem::{transmute, forget};
 use std::ptr::{null, null_mut};
 use std::marker::PhantomData;
 use std::ops::Deref;
 
 use ffi::{DWORD, LONG};
+
+// We use these instead of std::mem::uninitialized -- variables which are
+// set to this are always overridden and the dummy values are never exposed.
+const DUMMY_LONG: LONG = -1;
+const DUMMY_DWORD: DWORD = 0xdeadbeef;
 
 // Note on potentially problematic casts (clippy lints `cast-sign-loss`,
 // `cast-possible-truncation`): from my analysis they are all OK, for
@@ -566,7 +571,7 @@ impl Context {
         scope: Scope,
     ) -> Result<Context, Error> {
         unsafe {
-            let mut ctx: ffi::SCARDCONTEXT = uninitialized();
+            let mut ctx: ffi::SCARDCONTEXT = DUMMY_LONG;
 
             try_pcsc!(ffi::SCardEstablishContext(
                 scope as DWORD,
@@ -710,7 +715,7 @@ impl Context {
         &self,
     ) -> Result<usize, Error> {
         unsafe {
-            let mut buflen = uninitialized();
+            let mut buflen = DUMMY_DWORD;
 
             let err = ffi::SCardListReaders(
                 self.handle,
@@ -744,8 +749,8 @@ impl Context {
         preferred_protocols: Protocols,
     ) -> Result<Card, Error> {
         unsafe {
-            let mut handle: ffi::SCARDHANDLE = uninitialized();
-            let mut raw_active_protocol: DWORD = uninitialized();
+            let mut handle: ffi::SCARDHANDLE = DUMMY_LONG;
+            let mut raw_active_protocol: DWORD = DUMMY_DWORD;
 
             try_pcsc!(ffi::SCardConnect(
                 self.handle,
@@ -924,7 +929,7 @@ impl<'ctx> Card<'ctx> {
         initialization: Disposition,
     ) -> Result<(), Error> {
         unsafe {
-            let mut raw_active_protocol: DWORD = uninitialized();
+            let mut raw_active_protocol: DWORD = DUMMY_DWORD;
 
             try_pcsc!(ffi::SCardReconnect(
                 self.handle,
@@ -986,8 +991,8 @@ impl<'ctx> Card<'ctx> {
         &self,
     ) -> Result<(Status, Protocol), Error> {
         unsafe {
-            let mut raw_status: DWORD = uninitialized();
-            let mut raw_protocol: DWORD = uninitialized();
+            let mut raw_status: DWORD = DUMMY_DWORD;
+            let mut raw_protocol: DWORD = DUMMY_DWORD;
 
             try_pcsc!(ffi::SCardStatus(
                 self.handle,
@@ -1051,7 +1056,7 @@ impl<'ctx> Card<'ctx> {
         attribute: Attribute,
     ) -> Result<usize, Error> {
         unsafe {
-            let mut attribute_len = uninitialized();
+            let mut attribute_len = DUMMY_DWORD;
 
             try_pcsc!(ffi::SCardGetAttrib(
                 self.handle,
