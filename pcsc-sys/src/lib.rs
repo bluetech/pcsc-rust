@@ -77,11 +77,11 @@ pub const SCARD_E_NO_SERVICE: LONG = 0x8010001D;
 pub const SCARD_E_SERVICE_STOPPED: LONG = 0x8010001E;
 pub const SCARD_E_UNEXPECTED: LONG = 0x8010001F;
 // See: https://pcsclite.alioth.debian.org/api/group__API.html#differences
-#[cfg(not(windows))]
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_E_UNSUPPORTED_FEATURE: LONG = 0x8010001F;
 pub const SCARD_E_ICC_INSTALLATION: LONG = 0x80100020;
 pub const SCARD_E_ICC_CREATEORDER: LONG = 0x80100021;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub const SCARD_E_UNSUPPORTED_FEATURE: LONG = 0x80100022;
 pub const SCARD_E_DIR_NOT_FOUND: LONG = 0x80100023;
 pub const SCARD_E_FILE_NOT_FOUND: LONG = 0x80100024;
@@ -173,9 +173,9 @@ pub struct SCARD_IO_REQUEST {
     pub cbPciLength: DWORD,
 }
 
-#[cfg(not(windows))]
+#[cfg(not(target_os = "windows"))]
 pub const ATR_BUFFER_SIZE: usize = MAX_ATR_SIZE;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub const ATR_BUFFER_SIZE: usize = 36;
 
 #[cfg_attr(not(target_os = "macos"), repr(C))]
@@ -261,7 +261,7 @@ pub const SCARD_ATTR_DEVICE_SYSTEM_NAME: DWORD = SCARD_ATTR_DEVICE_SYSTEM_NAME_A
 
 // The g_* statics only link if this is applied, even though the link
 // is already specified in the build script. No idea why; oh well.
-#[cfg_attr(windows, link(name = "winscard"))]
+#[cfg_attr(target_os = "windows", link(name = "winscard"))]
 extern "system" {
     pub static g_rgSCardT0Pci: SCARD_IO_REQUEST;
     pub static g_rgSCardT1Pci: SCARD_IO_REQUEST;
@@ -286,7 +286,7 @@ extern "system" {
         hContext: SCARDCONTEXT,
     ) -> LONG;
 
-    #[cfg_attr(windows, link_name = "SCardConnectA")]
+    #[cfg_attr(target_os = "windows", link_name = "SCardConnectA")]
     pub fn SCardConnect(
         hContext: SCARDCONTEXT,
         szReader: *const c_char,
@@ -309,7 +309,7 @@ extern "system" {
         dwDisposition: DWORD,
     ) -> LONG;
 
-    #[cfg_attr(windows, link_name = "SCardGetStatusChangeA")]
+    #[cfg_attr(target_os = "windows", link_name = "SCardGetStatusChangeA")]
     pub fn SCardGetStatusChange(
         hContext: SCARDCONTEXT,
         dwTimeout: DWORD,
@@ -317,7 +317,7 @@ extern "system" {
         cReaders: DWORD,
     ) -> LONG;
 
-    #[cfg_attr(windows, link_name = "SCardListReadersA")]
+    #[cfg_attr(target_os = "windows", link_name = "SCardListReadersA")]
     pub fn SCardListReaders(
         hContext: SCARDCONTEXT,
         mszGroups: *const c_char,
@@ -334,7 +334,7 @@ extern "system" {
         dwDisposition: DWORD,
     ) -> LONG;
 
-    #[cfg_attr(windows, link_name = "SCardStatusA")]
+    #[cfg_attr(target_os = "windows", link_name = "SCardStatusA")]
     pub fn SCardStatus(
         hCard: SCARDHANDLE,
         szReaderName: *mut c_char,
