@@ -1,3 +1,12 @@
+# 0.1.2 (2017-08-16)
+
+* `pcsc-sys`: Added `SCardControl()` bindings.
+
+* Added `Card::control()`, a wrapper over `SCardControl()`.
+
+* `pcsc-sys`: Improved build target detection in the build script.
+
+
 # 0.1.1 (2017-06-15)
 
 * Fixed errors in the macOS bindings. In particular, wrong integer types
@@ -13,6 +22,7 @@
   `&CStr`. Previously the `&CStr` was turned into a `CString` internally;
   the new form is more explicit and can avoid an allocation if a `CString`
   is passed directly.
+
 
 # 0.1.0 - 2017-02-06
 
