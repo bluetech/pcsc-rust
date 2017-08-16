@@ -1130,6 +1130,43 @@ impl<'ctx> Card<'ctx> {
             Ok(&receive_buffer[0..receive_len as usize])
         }
     }
+
+    /// Sends a command directly to the reader (driver).
+    ///
+    /// `receive_buffer` is a buffer that should be large enough to hold
+    /// the response.
+    ///
+    /// Returns a slice into `receive_buffer` containing the response.
+    ///
+    /// If `receive_buffer` is not large enough to hold the response,
+    /// `Error::InsufficientBuffer` is returned.
+    ///
+    /// This function wraps `SCardControl` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gac3454d4657110fd7f753b2d3d8f4e32f
+    /// [2]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa379474(v=vs.85).aspx
+    pub fn control<'buf>(
+        &self,
+        control_code: DWORD,
+        send_buffer: &[u8],
+        receive_buffer: &'buf mut [u8],
+    ) -> Result<&'buf [u8], Error> {
+        let mut receive_len: DWORD = DUMMY_DWORD;
+
+        unsafe {
+            try_pcsc!(ffi::SCardControl(
+                self.handle,
+                control_code,
+                send_buffer.as_ptr(),
+                send_buffer.len() as DWORD,
+                receive_buffer.as_mut_ptr(),
+                receive_buffer.len() as DWORD,
+                &mut receive_len,
+            ));
+
+            Ok(&receive_buffer[0..receive_len as usize])
+        }
+    }
 }
 
 impl<'ctx> Drop for Card<'ctx> {

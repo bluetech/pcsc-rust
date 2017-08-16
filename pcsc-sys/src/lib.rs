@@ -368,4 +368,14 @@ extern "system" {
         pbRecvBuffer: *mut u8,
         pcbRecvLength: *mut DWORD,
     ) -> LONG;
+
+    pub fn SCardControl(
+        hCard: SCARDHANDLE,
+        dwControlCode: DWORD,
+        pbSendBuffer: *const u8,
+        cbSendLength: DWORD,
+        pbRecvBuffer: *mut u8,
+        cbRecvLength: DWORD,
+        lpBytesReturned: *mut DWORD,
+    ) -> LONG;
 }
