@@ -107,7 +107,7 @@ use ffi::{DWORD, LONG};
 // We use these instead of std::mem::uninitialized -- variables which are
 // set to this are always overridden and the dummy values are never exposed.
 const DUMMY_LONG: LONG = -1;
-const DUMMY_DWORD: DWORD = 0xdeadbeef;
+const DUMMY_DWORD: DWORD = 0xdead_beef;
 
 // Note on potentially problematic casts (clippy lints `cast-sign-loss`,
 // `cast-possible-truncation`): from my analysis they are all OK, for
@@ -872,7 +872,7 @@ impl ReaderState {
     /// reader. This can be used to detect a card removal/insertion
     /// between two calls to `Context::get_status_change()`.
     pub fn event_count(&self) -> u32 {
-        ((self.inner.dwEventState & 0xFFFF0000) >> 16) as u32
+        ((self.inner.dwEventState & 0xFFFF_0000) >> 16) as u32
     }
 
     /// Sync the currently-known state to the last reported state.
