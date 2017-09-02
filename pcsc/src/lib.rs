@@ -799,7 +799,7 @@ impl Context {
             Some(duration) => {
                 let timeout_ms_u64 = duration.as_secs()
                     .saturating_mul(1000)
-                    .saturating_add(duration.subsec_nanos() as u64 / 1_000_000);
+                    .saturating_add(u64::from(duration.subsec_nanos()) / 1_000_000);
                 std::cmp::min(ffi::INFINITE, timeout_ms_u64 as DWORD)
             },
             None => ffi::INFINITE
