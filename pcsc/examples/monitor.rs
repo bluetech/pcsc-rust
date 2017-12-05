@@ -10,12 +10,12 @@ fn main() {
     let mut readers_buf = [0; 2048];
     let mut reader_states = vec![
         // Listen for reader insertions/removals, if supported.
-        ReaderState::new(PNP_NOTIFICATION(), STATE_UNAWARE),
+        ReaderState::new(PNP_NOTIFICATION(), State::UNAWARE),
     ];
     loop {
         // Remove dead readers.
         fn is_dead(rs: &ReaderState) -> bool {
-            rs.event_state().intersects(STATE_UNKNOWN | STATE_IGNORE)
+            rs.event_state().intersects(State::UNKNOWN | State::IGNORE)
         }
         for rs in &reader_states {
             if is_dead(rs) {
@@ -29,7 +29,7 @@ fn main() {
         for name in names {
             if !reader_states.iter().any(|rs| rs.name() == name) {
                 println!("Adding {:?}", name);
-                reader_states.push(ReaderState::new(name, STATE_UNAWARE));
+                reader_states.push(ReaderState::new(name, State::UNAWARE));
             }
         }
 

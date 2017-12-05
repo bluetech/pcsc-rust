@@ -115,32 +115,32 @@ const DUMMY_DWORD: DWORD = 0xdead_beef;
 
 bitflags! {
     /// A mask of the state a card reader.
-    pub flags State: DWORD {
-        const STATE_UNAWARE = ffi::SCARD_STATE_UNAWARE,
-        const STATE_IGNORE = ffi::SCARD_STATE_IGNORE,
-        const STATE_CHANGED = ffi::SCARD_STATE_CHANGED,
-        const STATE_UNKNOWN = ffi::SCARD_STATE_UNKNOWN,
-        const STATE_UNAVAILABLE = ffi::SCARD_STATE_UNAVAILABLE,
-        const STATE_EMPTY = ffi::SCARD_STATE_EMPTY,
-        const STATE_PRESENT = ffi::SCARD_STATE_PRESENT,
-        const STATE_ATRMATCH = ffi::SCARD_STATE_ATRMATCH,
-        const STATE_EXCLUSIVE = ffi::SCARD_STATE_EXCLUSIVE,
-        const STATE_INUSE = ffi::SCARD_STATE_INUSE,
-        const STATE_MUTE = ffi::SCARD_STATE_MUTE,
-        const STATE_UNPOWERED = ffi::SCARD_STATE_UNPOWERED,
+    pub struct State: DWORD {
+        const UNAWARE = ffi::SCARD_STATE_UNAWARE;
+        const IGNORE = ffi::SCARD_STATE_IGNORE;
+        const CHANGED = ffi::SCARD_STATE_CHANGED;
+        const UNKNOWN = ffi::SCARD_STATE_UNKNOWN;
+        const UNAVAILABLE = ffi::SCARD_STATE_UNAVAILABLE;
+        const EMPTY = ffi::SCARD_STATE_EMPTY;
+        const PRESENT = ffi::SCARD_STATE_PRESENT;
+        const ATRMATCH = ffi::SCARD_STATE_ATRMATCH;
+        const EXCLUSIVE = ffi::SCARD_STATE_EXCLUSIVE;
+        const INUSE = ffi::SCARD_STATE_INUSE;
+        const MUTE = ffi::SCARD_STATE_MUTE;
+        const UNPOWERED = ffi::SCARD_STATE_UNPOWERED;
     }
 }
 
 bitflags! {
     /// A mask of the status of a card in a card reader.
-    pub flags Status: DWORD {
-        const STATUS_UNKNOWN = ffi::SCARD_UNKNOWN,
-        const STATUS_ABSENT = ffi::SCARD_ABSENT,
-        const STATUS_PRESENT = ffi::SCARD_PRESENT,
-        const STATUS_SWALLOWED = ffi::SCARD_SWALLOWED,
-        const STATUS_POWERED = ffi::SCARD_POWERED,
-        const STATUS_NEGOTIABLE = ffi::SCARD_NEGOTIABLE,
-        const STATUS_SPECIFIC = ffi::SCARD_SPECIFIC,
+    pub struct Status: DWORD {
+        const UNKNOWN = ffi::SCARD_UNKNOWN;
+        const ABSENT = ffi::SCARD_ABSENT;
+        const PRESENT = ffi::SCARD_PRESENT;
+        const SWALLOWED = ffi::SCARD_SWALLOWED;
+        const POWERED = ffi::SCARD_POWERED;
+        const NEGOTIABLE = ffi::SCARD_NEGOTIABLE;
+        const SPECIFIC = ffi::SCARD_SPECIFIC;
     }
 }
 
@@ -177,12 +177,12 @@ impl Protocol {
 
 bitflags! {
     /// A mask of possible communication protocols.
-    pub flags Protocols: DWORD {
-        const PROTOCOL_UNDEFINED = ffi::SCARD_PROTOCOL_UNDEFINED,
-        const PROTOCOL_T0 = ffi::SCARD_PROTOCOL_T0,
-        const PROTOCOL_T1 = ffi::SCARD_PROTOCOL_T1,
-        const PROTOCOL_RAW = ffi::SCARD_PROTOCOL_RAW,
-        const PROTOCOL_ANY = ffi::SCARD_PROTOCOL_ANY,
+    pub struct Protocols: DWORD {
+        const UNDEFINED = ffi::SCARD_PROTOCOL_UNDEFINED;
+        const T0 = ffi::SCARD_PROTOCOL_T0;
+        const T1 = ffi::SCARD_PROTOCOL_T1;
+        const RAW = ffi::SCARD_PROTOCOL_RAW;
+        const ANY = ffi::SCARD_PROTOCOL_ANY;
     }
 }
 
@@ -847,7 +847,7 @@ impl ReaderState {
                 // This seems useless to expose.
                 pvUserData: null_mut(),
                 dwCurrentState: current_state.bits(),
-                dwEventState: STATE_UNAWARE.bits(),
+                dwEventState: State::UNAWARE.bits(),
                 cbAtr: 0,
                 rgbAtr: [0; ffi::ATR_BUFFER_SIZE],
             },

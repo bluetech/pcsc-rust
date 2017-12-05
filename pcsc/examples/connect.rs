@@ -19,7 +19,7 @@ fn main() {
 
     {
         // Try to connect to a card in the first reader.
-        let mut card = ctx.connect(readers[0], ShareMode::Exclusive, PROTOCOL_ANY).expect("failed to connect to card");
+        let mut card = ctx.connect(readers[0], ShareMode::Exclusive, Protocols::ANY).expect("failed to connect to card");
 
         {
             // Start an exclusive transaction (not required -- can work on card directly).

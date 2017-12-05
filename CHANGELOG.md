@@ -1,3 +1,12 @@
+# Pending release
+
+* **BREAKING CHANGE** Update bitflags to version 1. This makes the flag
+  types easier to use, and improves the documentation.
+
+  Since bitflags now uses associated constants, Rust >= 1.20 is required.
+
+  Example for updating: `STATE_UNAWARE` -> `State::UNAWARE`.
+
 # 0.1.2 (2017-08-16)
 
 * `pcsc-sys`: Added `SCardControl()` bindings.

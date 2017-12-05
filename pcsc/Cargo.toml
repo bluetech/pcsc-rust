@@ -12,5 +12,5 @@ readme = "../README.md"
 authors = ["Ran Benita <ran234@gmail.com>"]
 
 [dependencies]
-bitflags = "0.7"
+bitflags = "1"
 pcsc-sys = { version = "0.1.2", path = "../pcsc-sys" }
