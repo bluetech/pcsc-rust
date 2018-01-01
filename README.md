@@ -31,7 +31,7 @@ In your `Cargo.toml`:
 
 ```toml
 [dependencies]
-pcsc = "0.1"
+pcsc = "1"
 ```
 
 In your crate:
