@@ -95,6 +95,9 @@
 extern crate bitflags;
 extern crate pcsc_sys as ffi;
 
+#[cfg(test)]
+mod tests;
+
 use std::os::raw::c_char;
 use std::ffi::{CStr, CString};
 use std::mem::{transmute, forget};
