@@ -571,7 +571,7 @@ impl Context {
         scope: Scope,
     ) -> Result<Context, Error> {
         unsafe {
-            let mut ctx: ffi::SCARDCONTEXT = DUMMY_LONG;
+            let mut ctx: ffi::SCARDCONTEXT = DUMMY_LONG as ffi::SCARDCONTEXT;
 
             try_pcsc!(ffi::SCardEstablishContext(
                 scope as DWORD,
@@ -749,7 +749,7 @@ impl Context {
         preferred_protocols: Protocols,
     ) -> Result<Card, Error> {
         unsafe {
-            let mut handle: ffi::SCARDHANDLE = DUMMY_LONG;
+            let mut handle: ffi::SCARDHANDLE = DUMMY_LONG as ffi::SCARDHANDLE;
             let mut raw_active_protocol: DWORD = DUMMY_DWORD;
 
             try_pcsc!(ffi::SCardConnect(
