@@ -41,7 +41,14 @@ pub type LONG = i32;
 #[cfg(target_os = "macos")]
 pub type ULONG = u32;
 
+#[cfg(target_os = "windows")]
+pub type SCARDCONTEXT = usize;
+#[cfg(target_os = "windows")]
+pub type SCARDHANDLE = usize;
+
+#[cfg(not(target_os = "windows"))]
 pub type SCARDCONTEXT = LONG;
+#[cfg(not(target_os = "windows"))]
 pub type SCARDHANDLE = LONG;
 
 pub const SCARD_S_SUCCESS: LONG = 0x0000_0000;
