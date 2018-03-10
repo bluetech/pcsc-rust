@@ -42,8 +42,8 @@ extern crate pcsc;
 
 ## Example
 
-Connect to the card in the first available reader and send the card an
-APDU command.
+Connect to the card in the first available reader, send the card an
+APDU command, print the APDU response.
 
 ```rust
 extern crate pcsc;
@@ -52,30 +52,69 @@ use pcsc::*;
 
 fn main() {
     // Establish a PC/SC context.
-    let ctx = Context::establish(Scope::User)
-        .expect("failed to establish context");
+    let ctx = match Context::establish(Scope::User) {
+        Ok(ctx) => ctx,
+        Err(err) => {
+            eprintln!("Failed to establish context: {}", err);
+            std::process::exit(1);
+        }
+    };
 
     // List available readers.
     let mut readers_buf = [0; 2048];
-    let mut readers = ctx.list_readers(&mut readers_buf)
-        .expect("failed to list readers");
+    let mut readers = match ctx.list_readers(&mut readers_buf) {
+        Ok(readers) => readers,
+        Err(err) => {
+            eprintln!("Failed to list readers: {}", err);
+            std::process::exit(1);
+        }
+    };
 
     // Use the first reader.
-    let reader = readers.next().ok_or(())
-        .expect("no readers are connected");
+    let reader = match readers.next() {
+        Some(reader) => reader,
+        None => {
+            println!("No readers are connected.");
+            return;
+        }
+    };
     println!("Using reader: {:?}", reader);
 
     // Connect to the card.
-    let card = ctx.connect(reader, ShareMode::Shared, Protocols::ANY)
-        .expect("failed to connect to card");
+    let card = match ctx.connect(reader, ShareMode::Shared, Protocols::ANY) {
+        Ok(card) => card,
+        Err(Error::NoSmartcard) => {
+            println!("A smartcard is not present in the reader.");
+            return;
+        }
+        Err(err) => {
+            eprintln!("Failed to connect to card: {}", err);
+            std::process::exit(1);
+        }
+    };
 
     // Send an APDU command.
     let apdu = b"\x00\xa4\x04\x00\x0A\xA0\x00\x00\x00\x62\x03\x01\x0C\x06\x01";
+    println!("Sending APDU: {:?}", apdu);
     let mut rapdu_buf = [0; MAX_BUFFER_SIZE];
-    let rapdu = card.transmit(apdu, &mut rapdu_buf)
-        .expect("failed to transmit APDU to card");
-    println!("{:?}", rapdu);
+    let rapdu = match card.transmit(apdu, &mut rapdu_buf) {
+        Ok(rapdu) => rapdu,
+        Err(err) => {
+            eprintln!("Failed to transmit APDU command to card: {}", err);
+            std::process::exit(1);
+        }
+    };
+    println!("APDU response: {:?}", rapdu);
 }
+```
+
+Example output:
+
+```
+$ ./target/debug/examples/readme
+Using reader: "SCM Microsystems Inc. SCR 355 [CCID Interface] 00 00"
+Sending APDU: [0, 164, 4, 0, 10, 160, 0, 0, 0, 98, 3, 1, 12, 6, 1]
+APDU response: [106, 130]
 ```
 
 ## Status
