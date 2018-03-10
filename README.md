@@ -66,7 +66,7 @@ fn main() {
     println!("Using reader: {:?}", reader);
 
     // Connect to the card.
-    let card = ctx.connect(reader, ShareMode::Shared, PROTOCOL_ANY)
+    let card = ctx.connect(reader, ShareMode::Shared, Protocols::ANY)
         .expect("failed to connect to card");
 
     // Send an APDU command.
