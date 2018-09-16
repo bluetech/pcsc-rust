@@ -36,15 +36,15 @@ fn main() {
     match ctx.get_status_change(Duration::from_secs(5), &mut reader_states) {
         Ok(()) => {
             println!("Blocking call exited normally");
-        },
+        }
         Err(Error::Cancelled) => {
             println!("Blocking call canceled");
-        },
+        }
         Err(Error::Timeout) => {
             println!("Blocking call timed out");
-        },
+        }
         Err(error) => {
             panic!("failed to get status changes: {:?}", error);
-        },
+        }
     }
 }

@@ -3,8 +3,8 @@ extern crate pkg_config;
 use std::env;
 
 fn main() {
-    let target_os = env::var("CARGO_CFG_TARGET_OS").expect(
-r#"The CARGO_CFG_TARGET_OS environment is not set in the build script."#);
+    let target_os = env::var("CARGO_CFG_TARGET_OS")
+        .expect(r#"The CARGO_CFG_TARGET_OS environment is not set in the build script."#);
 
     // Prefer the built-in service/library if available, otherwise try
     // libpcsclite.
@@ -20,10 +20,15 @@ r#"The CARGO_CFG_TARGET_OS environment is not set in the build script."#);
         }
 
         _ => {
-            pkg_config::Config::new().atleast_version("1").probe("libpcsclite").expect(&format!(
-r#"Could not find a PCSC library.
+            pkg_config::Config::new()
+                .atleast_version("1")
+                .probe("libpcsclite")
+                .expect(&format!(
+                    r#"Could not find a PCSC library.
 For the target OS `{}`, I tried to use pkg-config to find libpcsclite.
-Do you have pkg-config and libpcsclite configured for this target?"#, target_os));
+Do you have pkg-config and libpcsclite configured for this target?"#,
+                    target_os
+                ));
         }
     };
 }

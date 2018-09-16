@@ -95,12 +95,12 @@
 extern crate bitflags;
 extern crate pcsc_sys as ffi;
 
-use std::os::raw::c_char;
 use std::ffi::{CStr, CString};
-use std::mem::{transmute, forget};
-use std::ptr::{null, null_mut};
 use std::marker::PhantomData;
+use std::mem::{forget, transmute};
 use std::ops::Deref;
+use std::os::raw::c_char;
+use std::ptr::{null, null_mut};
 
 use ffi::{DWORD, LONG};
 
@@ -146,7 +146,7 @@ bitflags! {
 
 /// How a reader connection is shared.
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ShareMode {
     Exclusive = ffi::SCARD_SHARE_EXCLUSIVE as u32,
     Shared = ffi::SCARD_SHARE_SHARED as u32,
@@ -155,7 +155,7 @@ pub enum ShareMode {
 
 /// A smart card communication protocol.
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Protocol {
     T0 = ffi::SCARD_PROTOCOL_T0 as u32,
     T1 = ffi::SCARD_PROTOCOL_T1 as u32,
@@ -188,7 +188,7 @@ bitflags! {
 
 /// Disposition method when disconnecting from a card reader.
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Disposition {
     LeaveCard = ffi::SCARD_LEAVE_CARD as u32,
     ResetCard = ffi::SCARD_RESET_CARD as u32,
@@ -203,7 +203,7 @@ pub enum Disposition {
 /// [1]: https://pcsclite.alioth.debian.org/api/group__ErrorCodes.html
 /// [2]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa374738(v=vs.85).aspx#smart_card_return_values
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Error {
     // <contiguous block 1>
     InternalError = ffi::SCARD_F_INTERNAL_ERROR as u32,
@@ -282,8 +282,9 @@ impl Error {
     fn from_raw(raw: LONG) -> Error {
         unsafe {
             // The ranges here are the "blocks" above.
-            if ffi::SCARD_F_INTERNAL_ERROR <= raw && raw <= ffi::SCARD_E_SERVER_TOO_BUSY ||
-                ffi::SCARD_W_UNSUPPORTED_CARD <= raw && raw <= ffi::SCARD_W_CACHE_ITEM_TOO_BIG {
+            if ffi::SCARD_F_INTERNAL_ERROR <= raw && raw <= ffi::SCARD_E_SERVER_TOO_BUSY
+                || ffi::SCARD_W_UNSUPPORTED_CARD <= raw && raw <= ffi::SCARD_W_CACHE_ITEM_TOO_BIG
+            {
                 transmute::<u32, Error>(raw as u32)
             } else {
                 debug_assert!(false, format!("unknown PCSC error code: {:#x}", raw));
@@ -382,7 +383,7 @@ macro_rules! try_pcsc {
 
 /// Scope of a context.
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Scope {
     User = ffi::SCARD_SCOPE_USER as u32,
     Terminal = ffi::SCARD_SCOPE_TERMINAL as u32,
@@ -392,7 +393,7 @@ pub enum Scope {
 
 /// A class of Attributes.
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AttributeClass {
     VendorInfo = ffi::SCARD_CLASS_VENDOR_INFO as u32,
     Communications = ffi::SCARD_CLASS_COMMUNICATIONS as u32,
@@ -408,7 +409,7 @@ pub enum AttributeClass {
 
 /// Card reader attribute types.
 #[repr(u32)]
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Attribute {
     VendorName = ffi::SCARD_ATTR_VENDOR_NAME as u32,
     VendorIfdType = ffi::SCARD_ATTR_VENDOR_IFD_TYPE as u32,
@@ -580,7 +581,7 @@ impl Context {
                 &mut ctx,
             ));
 
-            Ok(Context{
+            Ok(Context {
                 handle: ctx,
             })
         }
@@ -698,7 +699,7 @@ impl Context {
                 return Err(Error::from_raw(err));
             }
 
-            Ok(ReaderNames{
+            Ok(ReaderNames {
                 buf: &buffer[..buflen as usize],
                 pos: 0,
             })
@@ -763,7 +764,7 @@ impl Context {
 
             let active_protocol = Protocol::from_raw(raw_active_protocol);
 
-            Ok(Card{
+            Ok(Card {
                 _context: PhantomData,
                 handle: handle,
                 active_protocol: active_protocol,
@@ -910,7 +911,7 @@ impl<'ctx> Card<'ctx> {
                 self.handle,
             ));
 
-            Ok(Transaction{
+            Ok(Transaction {
                 card: self,
             })
         }
