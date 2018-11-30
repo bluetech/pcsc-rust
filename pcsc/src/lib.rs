@@ -766,8 +766,8 @@ impl Context {
 
             Ok(Card {
                 _context: PhantomData,
-                handle: handle,
-                active_protocol: active_protocol,
+                handle,
+                active_protocol,
             })
         }
     }
