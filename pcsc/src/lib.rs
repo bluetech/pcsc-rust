@@ -96,11 +96,11 @@ extern crate bitflags;
 extern crate pcsc_sys as ffi;
 
 use std::ffi::{CStr, CString};
-use std::marker::PhantomData;
 use std::mem::{forget, transmute};
 use std::ops::Deref;
 use std::os::raw::c_char;
 use std::ptr::{null, null_mut};
+use std::sync::Arc;
 
 use ffi::{DWORD, LONG};
 
@@ -503,18 +503,23 @@ fn get_protocol_pci(protocol: Protocol) -> &'static ffi::SCARD_IO_REQUEST {
     }
 }
 
+struct ContextInner {
+    handle: ffi::SCARDCONTEXT,
+}
+
 /// Library context to the PCSC service.
 ///
 /// This structure wraps `SCARDCONTEXT`.
 pub struct Context {
-    handle: ffi::SCARDCONTEXT,
+    inner: Arc<ContextInner>,
 }
 
 /// A connection to a smart card.
 ///
 /// This structure wraps `SCARDHANDLE`.
-pub struct Card<'ctx> {
-    _context: PhantomData<&'ctx Context>,
+pub struct Card {
+    // Keeps the context alive.
+    _context: Context,
     handle: ffi::SCARDHANDLE,
     active_protocol: Protocol,
 }
@@ -529,8 +534,8 @@ pub struct Card<'ctx> {
 // - There can only be one active transaction at a time.
 // - All operations on the card must be performed through the transaction
 //   for the duration of the transaction's lifetime.
-pub struct Transaction<'tx, 'card: 'tx> {
-    card: &'tx mut Card<'card>,
+pub struct Transaction<'tx> {
+    card: &'tx mut Card,
 }
 
 /// An iterator over card reader names.
@@ -572,17 +577,19 @@ impl Context {
         scope: Scope,
     ) -> Result<Context, Error> {
         unsafe {
-            let mut ctx: ffi::SCARDCONTEXT = DUMMY_LONG as ffi::SCARDCONTEXT;
+            let mut handle: ffi::SCARDCONTEXT = DUMMY_LONG as ffi::SCARDCONTEXT;
 
             try_pcsc!(ffi::SCardEstablishContext(
                 scope as DWORD,
                 null(),
                 null(),
-                &mut ctx,
+                &mut handle,
             ));
 
             Ok(Context {
-                handle: ctx,
+                inner: Arc::new(ContextInner {
+                    handle,
+                }),
             })
         }
     }
@@ -603,21 +610,33 @@ impl Context {
     /// `Context` implements `Drop` which automatically releases the
     /// context; you only need to call this function if you want to handle
     /// errors.
+    ///
+    /// If the `Context` was cloned, and a clone is still alive, this
+    /// function will fail with `Error::CantDispose`.
     pub fn release(
         self
     ) -> Result<(), (Context, Error)> {
-        unsafe {
-            let err = ffi::SCardReleaseContext(
-                self.handle,
-            );
-            if err != ffi::SCARD_S_SUCCESS {
-                return Err((self, Error::from_raw(err)));
+        match Arc::try_unwrap(self.inner) {
+            Ok(inner) => {
+                unsafe {
+                    let err = ffi::SCardReleaseContext(
+                        inner.handle,
+                    );
+                    if err != ffi::SCARD_S_SUCCESS {
+                        let context = Context { inner: Arc::new(inner) };
+                        return Err((context, Error::from_raw(err)));
+                    }
+
+                    // Skip the drop, we did it "manually".
+                    forget(inner);
+
+                    Ok(())
+                }
+            },
+            Err(arc_inner) => {
+                let context = Context { inner: arc_inner };
+                Err((context, Error::CantDispose))
             }
-
-            // Skip the drop, we did it "manually".
-            forget(self);
-
-            Ok(())
         }
     }
 
@@ -633,7 +652,7 @@ impl Context {
     ) -> Result<(), Error> {
         unsafe {
             try_pcsc!(ffi::SCardIsValidContext(
-                self.handle,
+                self.inner.handle,
             ));
 
             Ok(())
@@ -653,7 +672,7 @@ impl Context {
     ) -> Result<(), Error> {
         unsafe {
             try_pcsc!(ffi::SCardCancel(
-                self.handle,
+                self.inner.handle,
             ));
 
             Ok(())
@@ -684,7 +703,7 @@ impl Context {
             let mut buflen = buffer.len() as DWORD;
 
             let err = ffi::SCardListReaders(
-                self.handle,
+                self.inner.handle,
                 null(),
                 buffer.as_mut_ptr() as *mut c_char,
                 &mut buflen,
@@ -719,7 +738,7 @@ impl Context {
             let mut buflen = DUMMY_DWORD;
 
             let err = ffi::SCardListReaders(
-                self.handle,
+                self.inner.handle,
                 null(),
                 null_mut(),
                 &mut buflen,
@@ -754,7 +773,7 @@ impl Context {
             let mut raw_active_protocol: DWORD = DUMMY_DWORD;
 
             try_pcsc!(ffi::SCardConnect(
-                self.handle,
+                self.inner.handle,
                 reader.as_ptr(),
                 share_mode as DWORD,
                 preferred_protocols.bits(),
@@ -765,7 +784,7 @@ impl Context {
             let active_protocol = Protocol::from_raw(raw_active_protocol);
 
             Ok(Card {
-                _context: PhantomData,
+                _context: self.clone(),
                 handle,
                 active_protocol,
             })
@@ -808,7 +827,7 @@ impl Context {
 
         unsafe {
             try_pcsc!(ffi::SCardGetStatusChange(
-                self.handle,
+                self.inner.handle,
                 timeout_ms,
                 readers.as_mut_ptr() as *mut ffi::SCARD_READERSTATE,
                 readers.len() as DWORD,
@@ -819,7 +838,7 @@ impl Context {
     }
 }
 
-impl Drop for Context {
+impl Drop for ContextInner {
     fn drop(&mut self) {
         unsafe {
             // Error is ignored here; to do proper error handling,
@@ -827,6 +846,19 @@ impl Drop for Context {
             let _err = ffi::SCardReleaseContext(
                 self.handle,
             );
+        }
+    }
+}
+
+impl Clone for Context {
+    /// Clone the `Context`.
+    ///
+    /// ## Implementation note
+    ///
+    /// This is implemented in the Rust side with an `Arc::clone`.
+    fn clone(&self) -> Self {
+        Context {
+            inner: Arc::clone(&self.inner),
         }
     }
 }
@@ -892,7 +924,7 @@ impl Drop for ReaderState {
     }
 }
 
-impl<'ctx> Card<'ctx> {
+impl Card {
     /// Start a new exclusive transaction with the card.
     ///
     /// Operations on the card for the duration of the transaction
@@ -903,9 +935,9 @@ impl<'ctx> Card<'ctx> {
     ///
     /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaddb835dce01a0da1d6ca02d33ee7d861
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
-    pub fn transaction<'tx>(
-        &'tx mut self,
-    ) -> Result<Transaction<'tx, 'ctx>, Error> {
+    pub fn transaction(
+        &mut self,
+    ) -> Result<Transaction, Error> {
         unsafe {
             try_pcsc!(ffi::SCardBeginTransaction(
                 self.handle,
@@ -964,7 +996,7 @@ impl<'ctx> Card<'ctx> {
     pub fn disconnect(
         self,
         disposition: Disposition,
-    ) -> Result<(), (Card<'ctx>, Error)> {
+    ) -> Result<(), (Card, Error)> {
         unsafe {
             let err = ffi::SCardDisconnect(
                 self.handle,
@@ -1170,7 +1202,7 @@ impl<'ctx> Card<'ctx> {
     }
 }
 
-impl<'ctx> Drop for Card<'ctx> {
+impl Drop for Card {
     fn drop(&mut self) {
         unsafe {
             // Error is ignored here; to do proper error handling,
@@ -1186,10 +1218,10 @@ impl<'ctx> Drop for Card<'ctx> {
     }
 }
 
-unsafe impl<'ctx> Send for Card<'ctx> {}
-unsafe impl<'ctx> Sync for Card<'ctx> {}
+unsafe impl Send for Card {}
+unsafe impl Sync for Card {}
 
-impl<'tx, 'card: 'tx> Transaction<'tx, 'card> {
+impl<'tx> Transaction<'tx> {
     /// End the transaction.
     ///
     /// In case of error, ownership of the transaction is returned to the
@@ -1210,7 +1242,7 @@ impl<'tx, 'card: 'tx> Transaction<'tx, 'card> {
     pub fn end(
         self,
         disposition: Disposition,
-    ) -> Result<(), (Transaction<'tx, 'card>, Error)> {
+    ) -> Result<(), (Transaction<'tx>, Error)> {
         unsafe {
             let err = ffi::SCardEndTransaction(
                 self.card.handle,
@@ -1228,7 +1260,7 @@ impl<'tx, 'card: 'tx> Transaction<'tx, 'card> {
     }
 }
 
-impl<'tx, 'card: 'tx> Drop for Transaction<'tx, 'card> {
+impl<'tx> Drop for Transaction<'tx> {
     fn drop(&mut self) {
         unsafe {
             // Error is ignored here; to do proper error handling,
@@ -1244,10 +1276,10 @@ impl<'tx, 'card: 'tx> Drop for Transaction<'tx, 'card> {
     }
 }
 
-impl<'tx, 'card: 'tx> Deref for Transaction<'tx, 'card> {
-    type Target = Card<'card>;
+impl<'tx> Deref for Transaction<'tx> {
+    type Target = Card;
 
-    fn deref(&self) -> &Card<'card> {
+    fn deref(&self) -> &Card {
         self.card
     }
 }

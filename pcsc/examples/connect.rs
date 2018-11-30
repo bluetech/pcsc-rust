@@ -67,5 +67,6 @@ fn main() {
 
     // Can either release explicity, which allows error handling,
     // or leave it to drop, which swallows any error.
+    // The function fails if there are any live clones.
     ctx.release().map_err(|(_, err)| err).expect("failed to release context");
 }
