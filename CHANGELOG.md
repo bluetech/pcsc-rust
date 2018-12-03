@@ -1,3 +1,34 @@
+# pcsc 2.0.0 (2018-12-01)
+
+* **BREAKING CHANGE** (`pcsc`) Remove the lifetime from the `Card` type.
+
+  This lifetime made the common case of bundling a `Context` and a `Card`
+  in the same struct very difficult, due to Rust's current inability to
+  express "self-referential structs".
+
+  Instead of the lifetime, a `Card` now holds an `Arc` reference to its
+  `Context`. The consequences of this are:
+
+  - `Context` now implements `Clone`. The implementation is an
+    `Arc::clone`.
+
+  - The PCSC context is only released once the last clone is dropped.
+
+  - The function `Context::release()` fails with an `Error::CantDispose`
+    if called while there are other clones alive.
+
+  - The "transitive" `'card` lifetime of `Transaction` is removed.
+
+  The migrate your code, replace all instances of `Card<'lifetime>` with
+  `Card`, if you had to explicitly specify the lifetime.
+
+  Note that the `'tx` lifetime of `Transaction` remains. Transactions
+  are normally short-lived and well-scoped, so using a static lifetime
+  makes better sense in this case.
+
+  Reported by @a-dma in
+  [issue #9](https://github.com/bluetech/pcsc-rust/issues/9).
+
 # 1.0.1 (2018-02-25)
 
 * **BREAKING CHANGE** (`pcsc-sys`) Fix the types of `SCARDCONTEXT` and
