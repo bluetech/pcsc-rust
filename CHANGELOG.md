@@ -1,3 +1,8 @@
+# pcsc 2.1.0 (2019-02-11)
+
+* Added support for getting the ATR (Answer To Reset) from a
+  `ReaderState`.
+
 # pcsc 2.0.0 (2018-12-01)
 
 * **BREAKING CHANGE** (`pcsc`) Remove the lifetime from the `Card` type.
