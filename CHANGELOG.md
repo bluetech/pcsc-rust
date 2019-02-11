@@ -1,3 +1,8 @@
+# pcsc 2.1.1 (2019-02-11)
+
+* Fixed bug where card.disconnect() would keep the associated Context
+  alive (leaked a strong reference).
+
 # pcsc 2.1.0 (2019-02-11)
 
 * Added support for getting the ATR (Answer To Reset) from a
