@@ -45,7 +45,7 @@ fn main() {
         println!();
         for rs in &reader_states {
             if rs.name() != PNP_NOTIFICATION() {
-                println!("{:?} {:?} {:x?}", rs.name(), rs.event_state(), rs.atr());
+                println!("{:?} {:?} {:?}", rs.name(), rs.event_state(), rs.atr());
             }
         }
     }
