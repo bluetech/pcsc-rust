@@ -869,7 +869,6 @@ unsafe impl Sync for Context {}
 impl ReaderState {
     /// Create a ReaderState for a card reader with a given presumed
     /// state.
-    // TODO: Support ATR fields.
     pub fn new<T: Into<CString>>(
         name: T,
         current_state: State,
@@ -892,6 +891,11 @@ impl ReaderState {
         // Lifetime elision assigns this the same lifetime as &self; this
         // is what we want, and is safe.
         unsafe { CStr::from_ptr(self.inner.szReader) }
+    }
+
+    /// The ATR (Answer To Reset) of the card inserted to the reader.
+    pub fn atr(&self) -> &[u8] {
+        &self.inner.rgbAtr[0..self.inner.cbAtr as usize]
     }
 
     /// The last reported state.
