@@ -998,7 +998,7 @@ impl Card {
     /// function if you want to handle errors or use a different
     /// disposition method.
     pub fn disconnect(
-        self,
+        mut self,
         disposition: Disposition,
     ) -> Result<(), (Card, Error)> {
         unsafe {
@@ -1011,6 +1011,7 @@ impl Card {
             }
 
             // Skip the drop, we did it "manually".
+            std::ptr::drop_in_place(&mut self._context);
             forget(self);
 
             Ok(())
