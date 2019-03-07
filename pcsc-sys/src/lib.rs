@@ -268,7 +268,7 @@ pub const SCARD_ATTR_DEVICE_SYSTEM_NAME: DWORD = SCARD_ATTR_DEVICE_SYSTEM_NAME_A
 
 #[cfg(target_os = "windows")]
 pub fn SCARD_CTL_CODE(code: DWORD) -> DWORD {
-    0x00310000 | (command << 2)
+    0x00310000 | (code << 2)
 }
 #[cfg(not(target_os = "windows"))]
 pub fn SCARD_CTL_CODE(code: DWORD) -> DWORD {
