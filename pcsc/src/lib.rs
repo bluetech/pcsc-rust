@@ -478,6 +478,16 @@ pub fn PNP_NOTIFICATION() -> &'static CStr {
     unsafe { CStr::from_bytes_with_nul_unchecked(b"\\\\?PnP?\\Notification\0") }
 }
 
+/// Transform a control code in the form expected by the platform.
+///
+/// Control codes passed to `Card::control` are usually defined as inputs
+/// to this function.
+///
+/// This function wraps the `SCARD_CTL_CODE` macro.
+pub fn ctl_code(code: DWORD) -> DWORD {
+    ffi::SCARD_CTL_CODE(code)
+}
+
 /// A structure for tracking the current state of card readers and cards.
 ///
 /// This structure wraps `SCARD_READERSTATE` ([pcsclite][1], [MSDN][2]).
@@ -1170,6 +1180,10 @@ impl Card {
     }
 
     /// Sends a command directly to the reader (driver).
+    ///
+    /// `control_code` is the reader-specific control code. You may need
+    /// to pass it through the `ctl_code()` function, according to the
+    /// driver documentation.
     ///
     /// `receive_buffer` is a buffer that should be large enough to hold
     /// the response.
