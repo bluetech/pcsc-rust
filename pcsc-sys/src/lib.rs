@@ -266,6 +266,15 @@ pub const SCARD_ATTR_SUPRESS_T1_IFS_REQUEST: DWORD = SCARD_ATTR_VALUE!(SCARD_CLA
 pub const SCARD_ATTR_DEVICE_FRIENDLY_NAME: DWORD = SCARD_ATTR_DEVICE_FRIENDLY_NAME_A;
 pub const SCARD_ATTR_DEVICE_SYSTEM_NAME: DWORD = SCARD_ATTR_DEVICE_SYSTEM_NAME_A;
 
+#[cfg(target_os = "windows")]
+pub fn SCARD_CTL_CODE(code: DWORD) -> DWORD {
+    0x00310000 | (command << 2)
+}
+#[cfg(not(target_os = "windows"))]
+pub fn SCARD_CTL_CODE(code: DWORD) -> DWORD {
+    0x42000000 + code
+}
+
 // The g_* statics only link if this is applied, even though the link
 // is already specified in the build script. No idea why; oh well.
 #[cfg_attr(target_os = "windows", link(name = "winscard"))]
