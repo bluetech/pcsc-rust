@@ -21,7 +21,7 @@
 //!   implemented API.
 //!
 //! [3]: https://msdn.microsoft.com/EN-US/library/aa374731.aspx#smart_card_functions
-//! [4]: https://pcsclite.alioth.debian.org/pcsclite.html
+//! [4]: https://pcsclite.apdu.fr/
 //!
 //! ## Communicating with a smart card
 //!
@@ -200,7 +200,7 @@ pub enum Disposition {
 ///
 /// See [pcsclite][1], [MSDN][2].
 ///
-/// [1]: https://pcsclite.alioth.debian.org/api/group__ErrorCodes.html
+/// [1]: https://pcsclite.apdu.fr/api/group__ErrorCodes.html
 /// [2]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa374738(v=vs.85).aspx#smart_card_return_values
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -492,7 +492,7 @@ pub fn ctl_code(code: DWORD) -> DWORD {
 ///
 /// This structure wraps `SCARD_READERSTATE` ([pcsclite][1], [MSDN][2]).
 ///
-/// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga33247d5d1257d59e55647c3bb717db24
+/// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga33247d5d1257d59e55647c3bb717db24
 /// [2]: https://msdn.microsoft.com/en-us/library/aa379808.aspx
 #[repr(C)]
 pub struct ReaderState {
@@ -581,7 +581,7 @@ impl Context {
     /// This function wraps `SCardEstablishContext` ([pcsclite][1],
     /// [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaa1b8970169fd4883a6dc4a8f43f19b67
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaa1b8970169fd4883a6dc4a8f43f19b67
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379479.aspx
     pub fn establish(
         scope: Scope,
@@ -612,7 +612,7 @@ impl Context {
     /// This function wraps `SCardReleaseContext` ([pcsclite][1],
     /// [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga6aabcba7744c5c9419fdd6404f73a934
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga6aabcba7744c5c9419fdd6404f73a934
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379798.aspx
     ///
     /// ## Note
@@ -655,7 +655,7 @@ impl Context {
     /// This function wraps `SCardIsValidContext` ([pcsclite][1],
     /// [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga722eb66bcc44d391f700ff9065cc080b
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga722eb66bcc44d391f700ff9065cc080b
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379788.aspx
     pub fn is_valid(
         &self
@@ -675,7 +675,7 @@ impl Context {
     ///
     /// This function wraps `SCardCancel` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacbbc0c6d6c0cbbeb4f4debf6fbeeee6
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaacbbc0c6d6c0cbbeb4f4debf6fbeeee6
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379470.aspx
     pub fn cancel(
         &self,
@@ -703,7 +703,7 @@ impl Context {
     ///
     /// This function wraps `SCardListReaders` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379793.aspx
     pub fn list_readers<'buf>(
         &self,
@@ -739,7 +739,7 @@ impl Context {
     ///
     /// This function wraps `SCardListReaders` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379793.aspx
     pub fn list_readers_len(
         &self,
@@ -770,7 +770,7 @@ impl Context {
     ///
     /// This function wraps `SCardConnect` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga4e515829752e0a8dbc4d630696a8d6a5
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga4e515829752e0a8dbc4d630696a8d6a5
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379473.aspx
     pub fn connect(
         &self,
@@ -817,7 +817,7 @@ impl Context {
     /// This function wraps `SCardGetStatusChange` ([pcsclite][1],
     /// [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga33247d5d1257d59e55647c3bb717db24
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga33247d5d1257d59e55647c3bb717db24
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379773.aspx
     pub fn get_status_change<D>(
         &self,
@@ -947,7 +947,7 @@ impl Card {
     /// This function wraps `SCardBeginTransaction` ([pcsclite][1],
     /// [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaddb835dce01a0da1d6ca02d33ee7d861
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaddb835dce01a0da1d6ca02d33ee7d861
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
     pub fn transaction(
         &mut self,
@@ -967,7 +967,7 @@ impl Card {
     ///
     /// This function wraps `SCardReconnect` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gad5d4393ca8c470112ad9468c44ed8940
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gad5d4393ca8c470112ad9468c44ed8940
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379797.aspx
     pub fn reconnect(
         &mut self,
@@ -998,7 +998,7 @@ impl Card {
     ///
     /// This function wraps `SCardDisconnect` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga4be198045c73ec0deb79e66c0ca1738a
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga4be198045c73ec0deb79e66c0ca1738a
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379475.aspx
     ///
     /// ## Note
@@ -1032,7 +1032,7 @@ impl Card {
     ///
     /// This function wraps `SCardStatus` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379803.aspx
     // TODO: Missing return values: reader names and ATR.
     pub fn status(
@@ -1072,7 +1072,7 @@ impl Card {
     ///
     /// This function wraps `SCardGetAttrib` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacfec51917255b7a25b94c5104961602
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaacfec51917255b7a25b94c5104961602
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379559.aspx
     pub fn get_attribute<'buf>(
         &self,
@@ -1097,7 +1097,7 @@ impl Card {
     ///
     /// This function wraps `SCardGetAttrib` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gaacfec51917255b7a25b94c5104961602
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaacfec51917255b7a25b94c5104961602
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379559.aspx
     pub fn get_attribute_len(
         &self,
@@ -1121,7 +1121,7 @@ impl Card {
     ///
     /// This function wraps `SCardSetAttrib` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga060f0038a4ddfd5dd2b8fadf3c3a2e4f
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga060f0038a4ddfd5dd2b8fadf3c3a2e4f
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379801.aspx
     pub fn set_attribute(
         &self,
@@ -1153,7 +1153,7 @@ impl Card {
     ///
     /// This function wraps `SCardTransmit` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#ga9a2d77242a271310269065e64633ab99
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga9a2d77242a271310269065e64633ab99
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379804.aspx
     pub fn transmit<'buf>(
         &self,
@@ -1195,7 +1195,7 @@ impl Card {
     ///
     /// This function wraps `SCardControl` ([pcsclite][1], [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gac3454d4657110fd7f753b2d3d8f4e32f
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gac3454d4657110fd7f753b2d3d8f4e32f
     /// [2]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa379474(v=vs.85).aspx
     pub fn control<'buf>(
         &self,
@@ -1249,7 +1249,7 @@ impl<'tx> Transaction<'tx> {
     /// This function wraps `SCardEndTransaction` ([pcsclite][1],
     /// [MSDN][2]).
     ///
-    /// [1]: https://pcsclite.alioth.debian.org/api/group__API.html#gae8742473b404363e5c587f570d7e2f3b
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae8742473b404363e5c587f570d7e2f3b
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379477.aspx
     ///
     /// ## Note

@@ -15,7 +15,7 @@
 //!   [`pkg-config`][3] crate for more information.
 //!
 //! [1]: https://msdn.microsoft.com/EN-US/library/aa374731.aspx#smart_card_functions
-//! [2]: https://pcsclite.alioth.debian.org/pcsclite.html
+//! [2]: https://pcsclite.apdu.fr/
 //! [3]: https://docs.rs/pkg-config/
 
 #![allow(bad_style)]
@@ -83,7 +83,7 @@ pub const SCARD_E_CARD_UNSUPPORTED: LONG = 0x8010_001C;
 pub const SCARD_E_NO_SERVICE: LONG = 0x8010_001D;
 pub const SCARD_E_SERVICE_STOPPED: LONG = 0x8010_001E;
 pub const SCARD_E_UNEXPECTED: LONG = 0x8010_001F;
-// See: https://pcsclite.alioth.debian.org/api/group__API.html#differences
+// See: https://pcsclite.apdu.fr/api/group__API.html#differences
 #[cfg(not(target_os = "windows"))]
 pub const SCARD_E_UNSUPPORTED_FEATURE: LONG = 0x8010_001F;
 pub const SCARD_E_ICC_INSTALLATION: LONG = 0x8010_0020;
