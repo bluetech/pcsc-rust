@@ -17,6 +17,9 @@ matrix:
 script:
   - cd pcsc-sys && cargo build --verbose
   - cd ../pcsc && cargo build --verbose
+  - cd ../pcsc-sys && if [[ $TRAVIS_RUST_VERSION == stable ]]; then cargo clippy --verbose; fi
+  - cd ../pcsc && if [[ $TRAVIS_RUST_VERSION == stable ]]; then cargo clippy --verbose; fi
+  - cd ../pcsc-sys && cargo test --verbose
   - cd ../pcsc && cargo test --verbose
 
 cache: cargo
