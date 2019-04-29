@@ -287,7 +287,9 @@ impl Error {
             {
                 transmute::<u32, Error>(raw as u32)
             } else {
-                debug_assert!(false, format!("unknown PCSC error code: {:#x}", raw));
+                if cfg!(debug_assertions) {
+                    panic!("unknown PCSC error code: {:#x}", raw);
+                }
                 // We mask unknown error codes here; this is not very nice,
                 // but seems better than panicking.
                 Error::UnknownError

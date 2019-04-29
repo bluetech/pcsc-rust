@@ -268,11 +268,11 @@ pub const SCARD_ATTR_DEVICE_SYSTEM_NAME: DWORD = SCARD_ATTR_DEVICE_SYSTEM_NAME_A
 
 #[cfg(target_os = "windows")]
 pub fn SCARD_CTL_CODE(code: DWORD) -> DWORD {
-    0x00310000 | (code << 2)
+    0x0031_0000 | (code << 2)
 }
 #[cfg(not(target_os = "windows"))]
 pub fn SCARD_CTL_CODE(code: DWORD) -> DWORD {
-    0x42000000 + code
+    0x4200_0000 + code
 }
 
 // The g_* statics only link if this is applied, even though the link
