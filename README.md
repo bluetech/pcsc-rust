@@ -10,7 +10,7 @@ Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/s16sb4kt79v7yo
 Rust bindings to the PC/SC API for smart card communication.
 
 - Nice, safe API.
-- Works on all major operating systems.
+- Tested on Linux, Windows, macOS.
 - Mostly zero overhead.
 
 See the [Documentation](https://docs.rs/pcsc) for more details.
@@ -19,10 +19,10 @@ See the `pcsc/examples` directory for some common tasks.
 
 ## Contents
 
-The [`pcsc-sys`](https://docs.rs/pcsc-sys) crate contains the direct,
+The [`pcsc-sys`](https://docs.rs/pcsc-sys) crate contains direct,
 low-level bindings to the C API.
 
-The [`pcsc`](https://docs.rs/pcsc) crate contains the high-level Rust
+The [`pcsc`](https://docs.rs/pcsc) crate contains high-level Rust
 wrappers.
 
 ## Usage
@@ -34,20 +34,12 @@ In your `Cargo.toml`:
 pcsc = "2"
 ```
 
-In your crate:
-
-```rust
-extern crate pcsc;
-```
-
 ## Example
 
 Connect to the card in the first available reader, send the card an
 APDU command, print the APDU response.
 
 ```rust
-extern crate pcsc;
-
 use pcsc::*;
 
 fn main() {
@@ -116,13 +108,6 @@ Using reader: "SCM Microsystems Inc. SCR 355 [CCID Interface] 00 00"
 Sending APDU: [0, 164, 4, 0, 10, 160, 0, 0, 0, 98, 3, 1, 12, 6, 1]
 APDU response: [106, 130]
 ```
-
-## Status
-
-- There are still some minor [TODOs](https://github.com/bluetech/pcsc-rust/search?q=TODO)
-  remaining.
-
-Help is welcome!
 
 ## License
 
