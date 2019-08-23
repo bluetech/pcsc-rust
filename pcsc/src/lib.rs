@@ -477,7 +477,8 @@ pub const MAX_BUFFER_SIZE_EXTENDED: usize = ffi::MAX_BUFFER_SIZE_EXTENDED;
 #[allow(non_snake_case)]
 // We can't have a const &CStr yet, so we simulate it with a function.
 pub fn PNP_NOTIFICATION() -> &'static CStr {
-    unsafe { CStr::from_bytes_with_nul_unchecked(b"\\\\?PnP?\\Notification\0") }
+    // The panic can't happen, but we avoid unsafe.
+    CStr::from_bytes_with_nul(b"\\\\?PnP?\\Notification\0").unwrap()
 }
 
 /// Transform a control code in the form expected by the platform.
