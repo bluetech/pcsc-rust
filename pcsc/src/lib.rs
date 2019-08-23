@@ -153,6 +153,12 @@ pub enum ShareMode {
     Direct = ffi::SCARD_SHARE_DIRECT as u32,
 }
 
+impl ShareMode {
+    fn into_raw(self) -> DWORD {
+        DWORD::from(self as u32)
+    }
+}
+
 /// A smart card communication protocol.
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -194,6 +200,12 @@ pub enum Disposition {
     ResetCard = ffi::SCARD_RESET_CARD as u32,
     UnpowerCard = ffi::SCARD_UNPOWER_CARD as u32,
     EjectCard = ffi::SCARD_EJECT_CARD as u32,
+}
+
+impl Disposition {
+    fn into_raw(self) -> DWORD {
+        DWORD::from(self as u32)
+    }
 }
 
 /// Possible library errors.
@@ -296,6 +308,10 @@ impl Error {
             }
         }
     }
+
+    fn into_raw(self) -> LONG {
+        LONG::from(self as u32 as i32)
+    }
 }
 
 impl std::error::Error for Error {
@@ -393,6 +409,12 @@ pub enum Scope {
     Global = ffi::SCARD_SCOPE_GLOBAL as u32,
 }
 
+impl Scope {
+    fn into_raw(self) -> DWORD {
+        DWORD::from(self as u32)
+    }
+}
+
 /// A class of Attributes.
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -459,6 +481,12 @@ pub enum Attribute {
     DeviceFriendlyName = ffi::SCARD_ATTR_DEVICE_FRIENDLY_NAME as u32,
     DeviceSystemName = ffi::SCARD_ATTR_DEVICE_SYSTEM_NAME as u32,
     SupressT1IfsRequest = ffi::SCARD_ATTR_SUPRESS_T1_IFS_REQUEST as u32,
+}
+
+impl Attribute {
+    fn into_raw(self) -> DWORD {
+        DWORD::from(self as u32)
+    }
 }
 
 /// Maximum amount of bytes in an ATR.
@@ -593,7 +621,7 @@ impl Context {
             let mut handle: ffi::SCARDCONTEXT = DUMMY_LONG as ffi::SCARDCONTEXT;
 
             try_pcsc!(ffi::SCardEstablishContext(
-                scope as DWORD,
+                scope.into_raw(),
                 null(),
                 null(),
                 &mut handle,
@@ -713,6 +741,7 @@ impl Context {
         buffer: &'buf mut [u8],
     ) -> Result<ReaderNames<'buf>, Error> {
         unsafe {
+            assert!(buffer.len() <= std::u32::MAX as usize);
             let mut buflen = buffer.len() as DWORD;
 
             let err = ffi::SCardListReaders(
@@ -721,7 +750,7 @@ impl Context {
                 buffer.as_mut_ptr() as *mut c_char,
                 &mut buflen,
             );
-            if err == Error::NoReadersAvailable as LONG {
+            if err == Error::NoReadersAvailable.into_raw() {
                 return Ok(ReaderNames {
                     buf: b"\0",
                     pos: 0,
@@ -756,7 +785,7 @@ impl Context {
                 null_mut(),
                 &mut buflen,
             );
-            if err == Error::NoReadersAvailable as LONG {
+            if err == Error::NoReadersAvailable.into_raw() {
                 return Ok(0);
             }
             if err != ffi::SCARD_S_SUCCESS {
@@ -788,7 +817,7 @@ impl Context {
             try_pcsc!(ffi::SCardConnect(
                 self.inner.handle,
                 reader.as_ptr(),
-                share_mode as DWORD,
+                share_mode.into_raw(),
                 preferred_protocols.bits(),
                 &mut handle,
                 &mut raw_active_protocol,
@@ -839,6 +868,8 @@ impl Context {
         };
 
         unsafe {
+            assert!(readers.len() <= std::u32::MAX as usize);
+
             try_pcsc!(ffi::SCardGetStatusChange(
                 self.inner.handle,
                 timeout_ms,
@@ -983,9 +1014,9 @@ impl Card {
 
             try_pcsc!(ffi::SCardReconnect(
                 self.handle,
-                share_mode as DWORD,
+                share_mode.into_raw(),
                 preferred_protocols.bits(),
-                initialization as DWORD,
+                initialization.into_raw(),
                 &mut raw_active_protocol,
             ));
 
@@ -1017,7 +1048,7 @@ impl Card {
         unsafe {
             let err = ffi::SCardDisconnect(
                 self.handle,
-                disposition as DWORD,
+                disposition.into_raw(),
             );
             if err != ffi::SCARD_S_SUCCESS {
                 return Err((self, Error::from_raw(err)));
@@ -1083,11 +1114,12 @@ impl Card {
         buffer: &'buf mut [u8],
     ) -> Result<&'buf [u8], Error> {
         unsafe {
+            assert!(buffer.len() <= std::u32::MAX as usize);
             let mut attribute_len = buffer.len() as DWORD;
 
             try_pcsc!(ffi::SCardGetAttrib(
                 self.handle,
-                attribute as DWORD,
+                attribute.into_raw(),
                 buffer.as_mut_ptr(),
                 &mut attribute_len,
             ));
@@ -1111,7 +1143,7 @@ impl Card {
 
             try_pcsc!(ffi::SCardGetAttrib(
                 self.handle,
-                attribute as DWORD,
+                attribute.into_raw(),
                 null_mut(),
                 &mut attribute_len,
             ));
@@ -1132,9 +1164,11 @@ impl Card {
         attribute_data: &[u8],
     ) -> Result<(), Error> {
         unsafe {
+            assert!(attribute_data.len() <= std::u32::MAX as usize);
+
             try_pcsc!(ffi::SCardSetAttrib(
                 self.handle,
-                attribute as DWORD,
+                attribute.into_raw(),
                 attribute_data.as_ptr(),
                 attribute_data.len() as DWORD,
             ));
@@ -1165,9 +1199,12 @@ impl Card {
     ) -> Result<&'buf [u8], Error> {
         let send_pci = get_protocol_pci(self.active_protocol);
         let recv_pci = null_mut();
+        assert!(receive_buffer.len() <= std::u32::MAX as usize);
         let mut receive_len = receive_buffer.len() as DWORD;
 
         unsafe {
+            assert!(send_buffer.len() <= std::u32::MAX as usize);
+
             try_pcsc!(ffi::SCardTransmit(
                 self.handle,
                 send_pci,
@@ -1202,6 +1239,8 @@ impl Card {
     /// [2]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa379474(v=vs.85).aspx
     pub fn control<'buf>(
         &self,
+        // TODO: This is a portability hazard -- should change to u32
+        //       in the next breaking change release.
         control_code: DWORD,
         send_buffer: &[u8],
         receive_buffer: &'buf mut [u8],
@@ -1209,6 +1248,9 @@ impl Card {
         let mut receive_len: DWORD = DUMMY_DWORD;
 
         unsafe {
+            assert!(send_buffer.len() <= std::u32::MAX as usize);
+            assert!(receive_buffer.len() <= std::u32::MAX as usize);
+
             try_pcsc!(ffi::SCardControl(
                 self.handle,
                 control_code,
@@ -1234,7 +1276,7 @@ impl Drop for Card {
             // another method, disconnect() should be called manually.
             let _err = ffi::SCardDisconnect(
                 self.handle,
-                Disposition::ResetCard as DWORD,
+                Disposition::ResetCard.into_raw(),
             );
         }
     }
@@ -1268,7 +1310,7 @@ impl<'tx> Transaction<'tx> {
         unsafe {
             let err = ffi::SCardEndTransaction(
                 self.card.handle,
-                disposition as DWORD,
+                disposition.into_raw(),
             );
             if err != 0 {
                 return Err((self, Error::from_raw(err)));
@@ -1292,7 +1334,7 @@ impl<'tx> Drop for Transaction<'tx> {
             // another method, end() should be called manually.
             let _err = ffi::SCardEndTransaction(
                 self.card.handle,
-                Disposition::LeaveCard as DWORD,
+                Disposition::LeaveCard.into_raw(),
             );
         }
     }
