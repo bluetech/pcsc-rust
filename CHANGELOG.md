@@ -1,3 +1,16 @@
+# pcsc 2.2.0 (2019-09-03)
+
+* Added a `ctl_function()`, a wrapper for the `SCARD_CTL_CODE` PCSC API.
+
+# pcsc-sys 1.1.0 (2019-09-03)
+
+* Added bindings for the `SCARD_CTL_CODE` PCSC API.
+
+* Added a way to specify which PCSC library to use directly instead of
+  using pkg-config, if needed. The build script now checks for two
+  environment variables, `PCSC_LIB_DIR` and `PCSC_LIB_NAME`. So the crate
+  documentation for details.
+
 # pcsc 2.1.1 (2019-02-11)
 
 * Fixed bug where card.disconnect() would keep the associated Context
