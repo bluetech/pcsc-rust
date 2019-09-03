@@ -20,19 +20,23 @@
 //!   and pcscd daemon. See [pcsclite][4] for documentation of the
 //!   implemented API.
 //!
+//! This crate depends on the [`pcsc-sys`][5] crate. See its documentation
+//! if you need to customize how the PCSC implementation is found.
+//!
 //! [3]: https://msdn.microsoft.com/EN-US/library/aa374731.aspx#smart_card_functions
 //! [4]: https://pcsclite.apdu.fr/
+//! [5]: https://docs.rs/pcsc-sys
 //!
 //! ## Communicating with a smart card
 //!
 //! To communicate with a smart card, you send it APDU (Application
 //! Protocol Data Unit) commands, and receive APDU responses.
 //!
-//! The format of these commands is described in the [ISO 7816 Part 4][5]
+//! The format of these commands is described in the [ISO 7816 Part 4][6]
 //! standard. The commands themselves vary based on the application on the
 //! card.
 //!
-//! [5]: http://www.cardwerk.com/smartcards/smartcard_standard_ISO7816-4.aspx
+//! [6]: http://www.cardwerk.com/smartcards/smartcard_standard_ISO7816-4.aspx
 //!
 //! ## Note on portability
 //!
@@ -41,10 +45,10 @@
 //! Hence, you cannot assume that code which works on one platform will
 //! behave the same in all other platforms - unfortunately, some
 //! adjustments might be needed to reach a common base. See [pcsclite][4]
-//! for a list of documented differences, and [Ludovic Rousseau's blog][6]
+//! for a list of documented differences, and [Ludovic Rousseau's blog][7]
 //! archive for many more details.
 //!
-//! [6]: https://ludovicrousseau.blogspot.com/
+//! [7]: https://ludovicrousseau.blogspot.com/
 //!
 //! Not all PC/SC functionality is covered yet; if you are missing
 //! something, please open an issue.
@@ -87,9 +91,9 @@
 //! card, any operation on the same underlying card from not within the
 //! transaction will block even across contexts.
 //!
-//! See [MSDN][7] for more details.
+//! See [MSDN][8] for more details.
 //!
-//! [7]: https://msdn.microsoft.com/en-us/library/ms953432.aspx#smartcardcspcook_topic2
+//! [8]: https://msdn.microsoft.com/en-us/library/ms953432.aspx#smartcardcspcook_topic2
 
 #[macro_use]
 extern crate bitflags;

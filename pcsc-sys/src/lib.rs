@@ -14,6 +14,13 @@
 //!   pcsclite is detected at build time using pkg-config. See the
 //!   [`pkg-config`][3] crate for more information.
 //!
+//!   If you do not want to use pkg-config, you may instead export the
+//!   following environment variables when building the crate:
+//!
+//!   - `PCSC_LIB_DIR`: A directory in which to search for a dynamic
+//!     library implementing the PCSC API.
+//!   - `PCSC_LIB_NAME`: The name of the library. Defaults to `pcsclite`.
+//!
 //! [1]: https://msdn.microsoft.com/EN-US/library/aa374731.aspx#smart_card_functions
 //! [2]: https://pcsclite.apdu.fr/
 //! [3]: https://docs.rs/pkg-config/
