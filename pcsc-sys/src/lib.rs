@@ -155,13 +155,36 @@ pub const SCARD_RESET_CARD: DWORD = 0x0001;
 pub const SCARD_UNPOWER_CARD: DWORD = 0x0002;
 pub const SCARD_EJECT_CARD: DWORD = 0x0003;
 
+/* Non-Windows (bitmask) */
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_UNKNOWN: DWORD = 0x0001;
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_ABSENT: DWORD = 0x0002;
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_PRESENT: DWORD = 0x0004;
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_SWALLOWED: DWORD = 0x0008;
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_POWERED: DWORD = 0x0010;
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_NEGOTIABLE: DWORD = 0x0020;
+#[cfg(not(target_os = "windows"))]
 pub const SCARD_SPECIFIC: DWORD = 0x0040;
+/* Windows (ordinal) */
+#[cfg(target_os = "windows")]
+pub const SCARD_UNKNOWN: DWORD = 0;
+#[cfg(target_os = "windows")]
+pub const SCARD_ABSENT: DWORD = 1;
+#[cfg(target_os = "windows")]
+pub const SCARD_PRESENT: DWORD = 2;
+#[cfg(target_os = "windows")]
+pub const SCARD_SWALLOWED: DWORD = 3;
+#[cfg(target_os = "windows")]
+pub const SCARD_POWERED: DWORD = 4;
+#[cfg(target_os = "windows")]
+pub const SCARD_NEGOTIABLE: DWORD = 5;
+#[cfg(target_os = "windows")]
+pub const SCARD_SPECIFIC: DWORD = 6;
 
 pub const SCARD_STATE_UNAWARE: DWORD = 0x0000;
 pub const SCARD_STATE_IGNORE: DWORD = 0x0001;
