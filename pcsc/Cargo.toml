@@ -9,7 +9,7 @@ documentation = "https://docs.rs/pcsc"
 repository = "https://github.com/bluetech/pcsc-rust"
 homepage = "https://github.com/bluetech/pcsc-rust"
 readme = "../README.md"
-authors = ["Ran Benita <ran234@gmail.com>"]
+authors = ["Ran Benita <ran@unusedvar.com>"]
 
 [dependencies]
 bitflags = "1"
