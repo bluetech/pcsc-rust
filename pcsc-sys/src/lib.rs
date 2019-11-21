@@ -198,11 +198,13 @@ pub const SCARD_STATE_EXCLUSIVE: DWORD = 0x0080;
 pub const SCARD_STATE_INUSE: DWORD = 0x0100;
 pub const SCARD_STATE_MUTE: DWORD = 0x0200;
 pub const SCARD_STATE_UNPOWERED: DWORD = 0x0400;
+
 pub const SCARD_AUTOALLOCATE: DWORD = !0;
 
 pub const INFINITE: DWORD = 0xFFFF_FFFF;
 
 pub const MAX_ATR_SIZE: usize = 33;
+pub const SCARD_ATR_LENGTH: usize = MAX_ATR_SIZE;
 pub const MAX_BUFFER_SIZE: usize = 264;
 pub const MAX_BUFFER_SIZE_EXTENDED: usize = 4 + 3 + (1 << 16) + 3 + 2;
 
