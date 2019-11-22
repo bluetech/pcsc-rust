@@ -588,7 +588,7 @@ pub struct Transaction<'tx> {
 /// The iterator does not perform any copying or allocations; this is left
 /// to the caller's discretion. It is therefore tied to the underlying
 /// buffer.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ReaderNames<'buf> {
     buf: &'buf [u8],
     pos: usize,
