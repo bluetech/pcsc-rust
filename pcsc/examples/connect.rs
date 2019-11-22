@@ -26,9 +26,13 @@ fn main() {
             let tx = card.transaction().expect("failed to begin card transaction");
 
             // Get the card status.
-            let (status, protocol) = tx.status().expect("failed to get card status");
-            println!("Status: {:?}", status);
-            println!("Protocol: {:?}", protocol);
+            let (names_len, _atr_len) = tx.status2_len().expect("failed to get the status length");
+            let mut names_buf = vec![0; names_len];
+            let mut atr_buf = [0; MAX_ATR_SIZE];
+            let status = tx.status2(&mut names_buf, &mut atr_buf).expect("failed to get card status");
+            println!("Reader names from status: {:?}", status.reader_names().collect::<Vec<_>>());
+            println!("Protocol from status: {:?}", status.protocol());
+            println!("ATR from status: {:?}", status.atr());
 
             // Send some harmless APDU to the card.
             let apdu = b"\x00\xa4\x04\x00\x08\x31\x54\x49\x43\x2e\x49\x43\x41";
@@ -39,7 +43,7 @@ fn main() {
             // Get the card's ATR.
             let mut atr_buf = [0; MAX_ATR_SIZE];
             let atr = tx.get_attribute(Attribute::AtrString, &mut atr_buf).expect("failed to get ATR attribute");
-            println!("ATR: {:?}", atr);
+            println!("ATR from attribute: {:?}", atr);
 
             // Get some attribute.
             let mut ifd_version_buf = [0; 4];

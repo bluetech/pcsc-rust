@@ -94,6 +94,7 @@
 //! See [MSDN][8] for more details.
 //!
 //! [8]: https://msdn.microsoft.com/en-us/library/ms953432.aspx#smartcardcspcook_topic2
+#![allow(deprecated)]
 
 #[macro_use]
 extern crate bitflags;
@@ -137,6 +138,7 @@ bitflags! {
 
 bitflags! {
     /// A mask of the status of a card in a card reader.
+    #[deprecated(since="2.3.0", note="Not portable - not a bitmask on Windows.")]
     pub struct Status: DWORD {
         const UNKNOWN = ffi::SCARD_UNKNOWN;
         const ABSENT = ffi::SCARD_ABSENT;
@@ -976,6 +978,40 @@ impl Drop for ReaderState {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct CardStatus<'names_buf, 'atr_buf> {
+    reader_names: ReaderNames<'names_buf>,
+    // `state` is currently not exposed, because its semantics are
+    // not portable:
+    // - It is a bitmask on pcsclite, ordinal on Windows.
+    // - In pcsclite, 16 upper bits contain an event counter.
+    // If you need this field, open an issue.
+    #[allow(unused)]
+    state: DWORD,
+    protocol: Protocol,
+    atr: &'atr_buf [u8],
+}
+
+impl<'names_buf, 'atr_buf> CardStatus<'names_buf, 'atr_buf> {
+    /// Iterator over the names by which the connected card reader is known.
+    pub fn reader_names(&self) -> ReaderNames<'names_buf> {
+        self.reader_names.clone()
+    }
+
+    /// Current protocol of the card, if any.
+    ///
+    /// The value is meaningful only if a communication protocol has already
+    /// been established.
+    pub fn protocol(&self) -> Protocol {
+        self.protocol
+    }
+
+    /// The current ATR string of the card.
+    pub fn atr(&self) -> &'atr_buf [u8] {
+        self.atr
+    }
+}
+
 impl Card {
     /// Start a new exclusive transaction with the card.
     ///
@@ -1070,9 +1106,17 @@ impl Card {
     ///
     /// This function wraps `SCardStatus` ([pcsclite][1], [MSDN][2]).
     ///
+    /// ## Deprecated
+    ///
+    /// The `Status` return value is not portable to Windows.
+    ///
+    /// The reader names and ATR return values are missing.
+    ///
+    /// Use `status2()` instead.
+    ///
     /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379803.aspx
-    // TODO: Missing return values: reader names and ATR.
+    #[deprecated(since="2.3.0", note="Not portable; use status2() instead.")]
     pub fn status(
         &self,
     ) -> Result<(Status, Protocol), Error> {
@@ -1094,6 +1138,90 @@ impl Card {
             let protocol = Protocol::from_raw(raw_protocol);
 
             Ok((status, protocol))
+        }
+    }
+
+    /// Get current info on the card.
+    ///
+    /// `names_buffer` is a buffer that should be large enough to hold all of
+    /// the reader names.
+    ///
+    /// `atr_buffer` is a buffer that should be large enough to hold the ATR.
+    /// The recommended size is `MAX_ATR_SIZE`, which should be always
+    /// sufficent.
+    ///
+    /// The function `status2_len` can be used to find the exact required
+    /// lengths.
+    ///
+    /// If the buffers are not large enough to hold all of the names or the
+    /// ATR, `Error::InsufficientBuffer` is returned.
+    ///
+    /// This function wraps `SCardStatus` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379803.aspx
+    pub fn status2<'names_buf, 'atr_buf>(
+        &self,
+        names_buffer: &'names_buf mut [u8],
+        atr_buffer: &'atr_buf mut [u8],
+    ) -> Result<CardStatus<'names_buf, 'atr_buf>, Error> {
+        unsafe {
+            assert!(names_buffer.len() <= std::u32::MAX as usize);
+            let mut names_len: DWORD = names_buffer.len() as DWORD;
+            let mut raw_state: DWORD = DUMMY_DWORD;
+            let mut raw_protocol: DWORD = DUMMY_DWORD;
+            assert!(atr_buffer.len() <= std::u32::MAX as usize);
+            let mut atr_len: DWORD = atr_buffer.len() as DWORD;
+
+            try_pcsc!(ffi::SCardStatus(
+                self.handle,
+                names_buffer.as_mut_ptr() as *mut c_char,
+                &mut names_len,
+                &mut raw_state,
+                &mut raw_protocol,
+                atr_buffer.as_mut_ptr(),
+                &mut atr_len,
+            ));
+
+            Ok(CardStatus {
+                reader_names: ReaderNames {
+                    buf: &names_buffer[..names_len as usize],
+                    pos: 0,
+                },
+                state: raw_state,
+                protocol: Protocol::from_raw(raw_protocol),
+                atr: &atr_buffer[0..atr_len as usize],
+            })
+        }
+    }
+
+    /// Get the needed length of the names buffer (first result) and ATR buffer
+    /// (second result) to be passed to `status2`.
+    ///
+    /// This function wraps `SCardStatus` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379803.aspx
+    pub fn status2_len(
+        &self,
+    ) -> Result<(usize, usize), Error> {
+        unsafe {
+            let mut names_len: DWORD = DUMMY_DWORD;
+            let mut raw_state: DWORD = DUMMY_DWORD;
+            let mut raw_protocol: DWORD = DUMMY_DWORD;
+            let mut atr_len: DWORD = DUMMY_DWORD;
+
+            try_pcsc!(ffi::SCardStatus(
+                self.handle,
+                null_mut(),
+                &mut names_len,
+                &mut raw_state,
+                &mut raw_protocol,
+                null_mut(),
+                &mut atr_len,
+            ));
+
+            Ok((names_len as usize, atr_len as usize))
         }
     }
 
