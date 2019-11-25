@@ -1,3 +1,25 @@
+# pcsc 2.3.0 (2019-11-25)
+
+* Deprecated the `Card::status()` function and the `Status` type.
+  Turns out `Status` is not a bitmask on Windows, so the interface was not
+  portable and unfixable.
+
+  These were replaced with `Card::status2()`, which returns a new
+  `CardStatus` type. This interface is portable, and also exposes the ATR
+  and reader names. However, it doesn't yet expose the actual status -- if
+  you need it, please open an issue.
+
+* Implemented `Debug` for the `ReaderNames` iterator struct.
+
+# pcsc-sys 1.2.0 (2019-11-25)
+
+* Added `SCARD_ATR_LENGTH` constant.
+
+* Fixed values of card state constants (`SCARD_PRESENT` and friends) on
+  Windows. They were entirely wrong there.
+
+* Fixed value of `SCARD_PROTOCOL_RAW` on Windows.
+
 # pcsc 2.2.0 (2019-09-03)
 
 * Added a `ctl_function()`, a wrapper for the `SCARD_CTL_CODE` PCSC API.
