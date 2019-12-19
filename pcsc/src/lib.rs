@@ -316,7 +316,8 @@ impl Error {
     }
 
     fn into_raw(self) -> LONG {
-        LONG::from(self as u32)
+        // Note: not using LONG::from() - won't work when LONG is i32.
+        self as u32 as LONG
     }
 }
 
