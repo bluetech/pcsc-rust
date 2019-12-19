@@ -1,3 +1,16 @@
+# pcsc 2.3.1 (2019-12-19)
+
+* Fix wrong result from `Error::into_raw()` on 64-bit Linux/BSD.
+
+  An incorrect cast caused a bit extension to be made when `LONG` is 64 bit.
+  This means 64-bit platforms other than Windows and macOS (where `LONG` is
+  always 32 bit).
+
+  Internally, `Error::into_raw()` is used in `Context::list_readers()` and
+  `Context::list_readers_len()`, which had a bug as a result: instead of
+  returning empty iterator/`Ok(0)` when no readers are available,
+  `Err(Error::NoReadersAvailable)` was returned.
+
 # pcsc 2.3.0 (2019-11-25)
 
 * Deprecated the `Card::status()` function and the `Status` type.
