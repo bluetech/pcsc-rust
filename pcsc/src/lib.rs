@@ -175,13 +175,14 @@ pub enum Protocol {
 }
 
 impl Protocol {
-    fn from_raw(raw: DWORD) -> Protocol {
+    fn from_raw(raw: DWORD) -> Option<Protocol> {
         match raw {
-            ffi::SCARD_PROTOCOL_T0 => Protocol::T0,
-            ffi::SCARD_PROTOCOL_T1 => Protocol::T1,
-            ffi::SCARD_PROTOCOL_RAW => Protocol::RAW,
+            ffi::SCARD_PROTOCOL_UNDEFINED => None,
+            ffi::SCARD_PROTOCOL_T0 => Some(Protocol::T0),
+            ffi::SCARD_PROTOCOL_T1 => Some(Protocol::T1),
+            ffi::SCARD_PROTOCOL_RAW => Some(Protocol::RAW),
             // This should not be possible, since we only allow to select
-            // from Protocol's variants. Hence, we can panic.
+            // from Protocol's variants (or none).
             _ => panic!("impossible protocol: {:#x}", raw),
         }
     }
@@ -569,7 +570,7 @@ pub struct Card {
     // Keeps the context alive.
     _context: Context,
     handle: ffi::SCARDHANDLE,
-    active_protocol: Protocol,
+    active_protocol: Option<Protocol>,
 }
 
 /// An exclusive transaction with a card.
@@ -989,7 +990,7 @@ pub struct CardStatus<'names_buf, 'atr_buf> {
     // If you need this field, open an issue.
     #[allow(unused)]
     state: DWORD,
-    protocol: Protocol,
+    protocol: Option<Protocol>,
     atr: &'atr_buf [u8],
 }
 
@@ -1003,8 +1004,26 @@ impl<'names_buf, 'atr_buf> CardStatus<'names_buf, 'atr_buf> {
     ///
     /// The value is meaningful only if a communication protocol has already
     /// been established.
-    pub fn protocol(&self) -> Protocol {
+    ///
+    /// If connected to a reader directly without an active protocol, returns
+    /// None.
+    pub fn protocol2(&self) -> Option<Protocol> {
         self.protocol
+    }
+
+    /// Current protocol of the card, if any.
+    ///
+    /// The value is meaningful only if a communication protocol has already
+    /// been established.
+    ///
+    /// ## Panics
+    ///
+    /// This function panics when connected to a reader directly without an
+    /// active protocol. Use `protocol2()` instead if you want to avoid this.
+    pub fn protocol(&self) -> Protocol {
+        self.protocol.expect(
+            "pcsc::CardStatus::protocol() does not support direct connections; use protocol2() instead"
+        )
     }
 
     /// The current ATR string of the card.
@@ -1113,6 +1132,9 @@ impl Card {
     ///
     /// The reader names and ATR return values are missing.
     ///
+    /// When there is no active protocol (as when connecting to the reader
+    /// directly), this function panics.
+    ///
     /// Use `status2()` instead.
     ///
     /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
@@ -1136,7 +1158,9 @@ impl Card {
             ));
 
             let status = Status::from_bits_truncate(raw_status);
-            let protocol = Protocol::from_raw(raw_protocol);
+            let protocol = Protocol::from_raw(raw_protocol).expect(
+                "pcsc::Card::status() does not support direct connections; use status2() instead"
+            );
 
             Ok((status, protocol))
         }
@@ -1330,7 +1354,10 @@ impl Card {
         send_buffer: &[u8],
         receive_buffer: &'buf mut [u8],
     ) -> Result<&'buf [u8], Error> {
-        let send_pci = get_protocol_pci(self.active_protocol);
+        let active_protocol = self.active_protocol.expect(
+            "pcsc::Card::transmit() does not work with direct connections"
+        );
+        let send_pci = get_protocol_pci(active_protocol);
         let recv_pci = null_mut();
         assert!(receive_buffer.len() <= std::u32::MAX as usize);
         let mut receive_len = receive_buffer.len() as DWORD;
