@@ -19,7 +19,7 @@ fn main() {
 
     {
         // Try to connect to a card in the first reader.
-        let mut card = ctx.connect(readers[0], ShareMode::Exclusive, Protocols::ANY).expect("failed to connect to card");
+        let mut card = ctx.connect(readers[0], ShareMode::Shared, Protocols::ANY).expect("failed to connect to card");
 
         {
             // Start an exclusive transaction (not required -- can work on card directly).
@@ -31,14 +31,20 @@ fn main() {
             let mut atr_buf = [0; MAX_ATR_SIZE];
             let status = tx.status2(&mut names_buf, &mut atr_buf).expect("failed to get card status");
             println!("Reader names from status: {:?}", status.reader_names().collect::<Vec<_>>());
-            println!("Protocol from status: {:?}", status.protocol());
+            if let Some(protocol) = status.protocol2() {
+                println!("Protocol from status: {:?}", protocol);
+            } else {
+                println!("Protocol from status: directly connected");
+            }
             println!("ATR from status: {:?}", status.atr());
 
             // Send some harmless APDU to the card.
-            let apdu = b"\x00\xa4\x04\x00\x08\x31\x54\x49\x43\x2e\x49\x43\x41";
-            let mut rapdu_buf = [0; MAX_BUFFER_SIZE];
-            let rapdu = tx.transmit(apdu, &mut rapdu_buf).expect("failed to transmit APDU to card");
-            println!("RAPDU: {:?}", rapdu);
+            if let Some(_) = status.protocol2() {
+                let apdu = b"\x00\xa4\x04\x00\x08\x31\x54\x49\x43\x2e\x49\x43\x41";
+                let mut rapdu_buf = [0; MAX_BUFFER_SIZE];
+                let rapdu = tx.transmit(apdu, &mut rapdu_buf).expect("failed to transmit APDU to card");
+                println!("RAPDU: {:?}", rapdu);
+            }
 
             // Get the card's ATR.
             let mut atr_buf = [0; MAX_ATR_SIZE];
