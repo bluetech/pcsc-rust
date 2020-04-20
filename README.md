@@ -1,10 +1,10 @@
 # pcsc-rust
 
-[![crates.io](https://img.shields.io/crates/v/pcsc.svg)](https://crates.io/crates/pcsc)
+[![crates.io](https://img.shields.io/crates/v/pcsc)](https://crates.io/crates/pcsc)
 [![docs.rs](https://docs.rs/pcsc/badge.svg)](https://docs.rs/pcsc)
 [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bluetech/pcsc-rust/blob/master/LICENSE-MIT)
 
-Linux, macOS, Windows: [![](https://github.com/bluetech/pcsc-rust/workflows/ci/badge.svg?branch=master)](https://github.com/bluetech/pcsc-rust/actions/)
+Linux, macOS, Windows: [![](https://github.com/bluetech/pcsc-rust/workflows/CI/badge.svg?branch=master)](https://github.com/bluetech/pcsc-rust/actions/)
 
 Rust bindings to the PC/SC API for smart card communication.
 
