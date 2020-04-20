@@ -1,6 +1,28 @@
+# pcsc 2.4.0 (2020-04-20)
+
+* Added support for direct connections to a reader (without a card
+  attached).
+
+  This enables setting control parameters on readers which support it, for
+  example. Transmitting with custom protocols on such connections is not
+  supported however.
+
+  Such connections use `ShareMode::Direct` and `Protocols::UNDEFINED`.
+
+  For this purpose the following changes were made:
+
+  - Added a `CardStatus::protocol2()` which returns `Option<Protocol>`, as
+    opposed to `CardStatus::protocol()` which now panics when missing
+    protocol.
+
+  - Made `Card::status()` panic when missing protocol. This function is
+    deprecated (use `Card::status2()` instead).
+
+  - Made `Card::transmit()` panic when missing protocol.
+
 # pcsc 2.3.1 (2019-12-19)
 
-* Fix wrong result from `Error::into_raw()` on 64-bit Linux/BSD.
+* Fixed wrong result from `Error::into_raw()` on 64-bit Linux/BSD.
 
   An incorrect cast caused a bit extension to be made when `LONG` is 64 bit.
   This means 64-bit platforms other than Windows and macOS (where `LONG` is
