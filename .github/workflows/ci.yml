@@ -42,3 +42,7 @@ jobs:
       - name: Test pcsc
         run: cargo test --verbose
         working-directory: pcsc
+
+      - name: Lint
+        if: matrix.toolchain == 'stable'
+        run: cargo clippy --verbose
