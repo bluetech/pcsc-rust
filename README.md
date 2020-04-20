@@ -4,8 +4,7 @@
 [![docs.rs](https://docs.rs/pcsc/badge.svg)](https://docs.rs/pcsc)
 [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bluetech/pcsc-rust/blob/master/LICENSE-MIT)
 
-Linux, macOS: [![Travis CI](https://travis-ci.org/bluetech/pcsc-rust.svg?branch=master)](https://travis-ci.org/bluetech/pcsc-rust)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/s16sb4kt79v7yop4/branch/master?svg=true)](https://ci.appveyor.com/project/bluetech/pcsc-rust/branch/master)
+Linux, macOS, Windows: [![](https://github.com/bluetech/pcsc-rust/workflows/ci/badge.svg?branch=master)](https://github.com/bluetech/pcsc-rust/actions/)
 
 Rust bindings to the PC/SC API for smart card communication.
 
