@@ -3,7 +3,6 @@
 
 extern crate pcsc;
 
-use std::sync::Arc;
 use std::time::Duration;
 
 use pcsc::*;
@@ -16,15 +15,14 @@ fn wait_for_enter_keypress() {
 
 fn main() {
     // Get a context.
-    let ctx = Arc::new(Context::establish(Scope::User).expect("failed to establish context"));
+    let ctx = Context::establish(Scope::User).expect("failed to establish context");
 
     // Spawn a thread which waits for a key-press then cancels the operation.
-    // In this case, we could have used a scoped thread instead of Arc.
     {
-        let ctx = Arc::downgrade(&ctx);
+        let ctx = ctx.clone();
         std::thread::spawn(move || {
             wait_for_enter_keypress();
-            ctx.upgrade().map(|ctx| ctx.cancel().expect("failed to cancel"));
+            ctx.cancel().expect("failed to cancel");
         });
     }
 
