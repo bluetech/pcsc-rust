@@ -980,6 +980,7 @@ impl Drop for ReaderState {
     }
 }
 
+/// Status of a card in a card reader.
 #[derive(Clone, Debug)]
 pub struct CardStatus<'names_buf, 'atr_buf> {
     reader_names: ReaderNames<'names_buf>,
