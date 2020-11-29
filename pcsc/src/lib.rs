@@ -6,7 +6,7 @@
 //! [PC/SC Workgroup][2] for more information.
 //!
 //! [1]: https://en.wikipedia.org/wiki/PC/SC
-//! [2]: https://www.pcscworkgroup.com/
+//! [2]: https://pcscworkgroup.com/
 //!
 //! This library is a safe and ergonomic FFI wrapper around the following
 //! PC/SC implementations:
@@ -72,8 +72,8 @@
 //!
 //! ## Note on thread safety and blocking operations
 //!
-//! A library context can be safely moved to another thread or used from
-//! multiple threads.
+//! A library context can be safely moved to another thread or cloned and
+//! used from multiple threads.
 //!
 //! Operations on a given context are not performed concurrently. If one
 //! thread performs a blocking operation on a context, such as
@@ -90,6 +90,10 @@
 //! Note however, that if one context has an exclusive transaction with a
 //! card, any operation on the same underlying card from not within the
 //! transaction will block even across contexts.
+//!
+//! When issuing a series of commands to a card, it is recommended to always
+//! use a transaction -- other programs and even system services can get in
+//! the way otherwise, even if you don't expect it.
 //!
 //! See [MSDN][8] for more details.
 //!
