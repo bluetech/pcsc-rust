@@ -808,6 +808,19 @@ impl Context {
         }
     }
 
+    /// List all connected card readers, allocating buffers of the required size.
+    ///
+    /// This function wraps `SCardListReaders` ([pcsclite][1], [MSDN][2]).  It is an owned version
+    /// of [`list_readers`](#method.list_readers), calling
+    /// [`list_readers_len`](#method.list_readers_len) to determine the required buffer size.
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379793.aspx
+    pub fn list_readers_owned(&self) -> Result<Vec<CString>, Error> {
+        let mut buffer = vec![0u8; self.list_readers_len()?];
+        Ok(self.list_readers(&mut buffer)?.map(ToOwned::to_owned).collect())
+    }
+
     /// Connect to a card which is present in a reader.
     ///
     /// See the `connect.rs` example program.
@@ -1037,6 +1050,61 @@ impl<'names_buf, 'atr_buf> CardStatus<'names_buf, 'atr_buf> {
     }
 }
 
+/// Status of a card in a card reader (owned).
+///
+/// This is an owned version of [`CardStatus`](struct.CardStatus.html).
+#[derive(Clone, Debug)]
+pub struct CardStatusOwned {
+    reader_names: Vec<CString>,
+    // `state` is currently not exposed, because its semantics are
+    // not portable:
+    // - It is a bitmask on pcsclite, ordinal on Windows.
+    // - In pcsclite, 16 upper bits contain an event counter.
+    // If you need this field, open an issue.
+    #[allow(unused)]
+    state: DWORD,
+    protocol: Option<Protocol>,
+    atr: Vec<u8>,
+}
+
+impl CardStatusOwned {
+    /// Slice of the names by which the connected card reader is known.
+    pub fn reader_names(&self) -> &[CString] {
+        &self.reader_names
+    }
+
+    /// Current protocol of the card, if any.
+    ///
+    /// The value is meaningful only if a communication protocol has already
+    /// been established.
+    ///
+    /// If connected to a reader directly without an active protocol, returns
+    /// None.
+    pub fn protocol2(&self) -> Option<Protocol> {
+        self.protocol
+    }
+
+    /// Current protocol of the card, if any.
+    ///
+    /// The value is meaningful only if a communication protocol has already
+    /// been established.
+    ///
+    /// ## Panics
+    ///
+    /// This function panics when connected to a reader directly without an
+    /// active protocol. Use `protocol2()` instead if you want to avoid this.
+    pub fn protocol(&self) -> Protocol {
+        self.protocol.expect(
+            "pcsc::CardStatus::protocol() does not support direct connections; use protocol2() instead"
+        )
+    }
+
+    /// The current ATR string of the card.
+    pub fn atr(&self) -> &[u8] {
+        &self.atr
+    }
+}
+
 impl Card {
     /// Start a new exclusive transaction with the card.
     ///
@@ -1255,6 +1323,35 @@ impl Card {
         }
     }
 
+    /// Get current info on the card, allocating buffers of the required size.
+    ///
+    /// This function wraps `SCardStatus` ([pcsclite][1], [MSDN][2]).  It is an owned version of
+    /// [`status2`](#method.status2), calling [`status2_len`](#method.status2_len) to determine the
+    /// required buffer sizes.
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379803.aspx
+    pub fn status2_owned(&self) -> Result<CardStatusOwned, Error> {
+        let (names_len, atr_len) = self.status2_len()?;
+        let mut names_buffer = vec![0u8; names_len];
+        let mut atr_buffer = vec![0u8; atr_len];
+
+        let (reader_names, state, protocol, atr_len) = {
+            let card_status = self.status2(&mut names_buffer, &mut atr_buffer)?;
+            let reader_names = card_status.reader_names.map(ToOwned::to_owned).collect();
+            (reader_names, card_status.state, card_status.protocol, card_status.atr.len())
+        };
+
+        atr_buffer.truncate(atr_len);
+
+        Ok(CardStatusOwned {
+            reader_names,
+            state,
+            protocol,
+            atr: atr_buffer,
+        })
+    }
+
     /// Get an attribute of the card or card reader.
     ///
     /// `buffer` is a buffer that should be large enough for the attribute
@@ -1312,6 +1409,21 @@ impl Card {
 
             Ok(attribute_len as usize)
         }
+    }
+
+    /// Get an attribute of the card or card reader, allocating a buffer of the required size.
+    ///
+    /// This function wraps `SCardGetAttrib` ([pcsclite][1], [MSDN][2]).  It is an owned version of
+    /// [`get_attribute`](#method.get_attribute), calling
+    /// [`get_attribute_len`](#method.get_attribute_len) to determine the required buffer size.
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaacfec51917255b7a25b94c5104961602
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379559.aspx
+    pub fn get_attribute_owned(&self, attribute: Attribute) -> Result<Vec<u8>, Error> {
+        let mut buf = vec![0u8; self.get_attribute_len(attribute)?];
+        let n = self.get_attribute(attribute, &mut buf)?.len();
+        buf.truncate(n);
+        Ok(buf)
     }
 
     /// Set an attribute of the card or card reader.
