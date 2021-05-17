@@ -1,3 +1,14 @@
+# pcsc 2.5.0 (2021-05-17)
+
+* Added owned versions of several functions:
+  - `Context::list_readers` -> `Context::list_readers_owned`
+  - `Card::get_attribute` -> `Card::get_attribute_owned`
+  - `Card::status2` -> `Card::status2_owned`
+  You can use them if you don't want to deal with lengths and buffers and
+  just allocate.
+
+  Contributed by Robin Krahl.
+
 # pcsc 2.4.0 (2020-04-20)
 
 * Added support for direct connections to a reader (without a card
