@@ -183,7 +183,7 @@ bitflags! {
 impl Status {
     fn from_raw(raw_status: DWORD) -> Self {
         #[cfg(target_os = "windows")]
-        match (raw_status) {
+        match raw_status {
             ffi::SCARD_UNKNOWN => Status::UNKNOWN,
             ffi::SCARD_ABSENT => Status::ABSENT,
             ffi::SCARD_PRESENT => Status::PRESENT,
@@ -191,6 +191,7 @@ impl Status {
             ffi::SCARD_POWERED => Status::POWERED,
             ffi::SCARD_NEGOTIABLE => Status::NEGOTIABLE,
             ffi::SCARD_SPECIFIC => Status::SPECIFIC,
+            _ => Status::empty(),
         }
 
         #[cfg(not(target_os = "windows"))]
