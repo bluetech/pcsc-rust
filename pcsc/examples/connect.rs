@@ -30,6 +30,7 @@ fn main() {
             let mut names_buf = vec![0; names_len];
             let mut atr_buf = [0; MAX_ATR_SIZE];
             let status = tx.status2(&mut names_buf, &mut atr_buf).expect("failed to get card status");
+            println!("Status from status: {:?}", status.status());
             println!("Reader names from status: {:?}", status.reader_names().collect::<Vec<_>>());
             if let Some(protocol) = status.protocol2() {
                 println!("Protocol from status: {:?}", protocol);

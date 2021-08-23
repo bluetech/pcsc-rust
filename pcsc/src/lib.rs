@@ -142,15 +142,59 @@ bitflags! {
 
 bitflags! {
     /// A mask of the status of a card in a card reader.
-    #[deprecated(since="2.3.0", note="Not portable - not a bitmask on Windows.")]
+    ///
+    /// # Portability note
+    ///
+    /// On Windows, Status always has exactly one bit set, and the bit values do
+    /// not correspond to underlying PC/SC constants. This allows Status to be
+    /// used in the same way across all platforms.
     pub struct Status: DWORD {
-        const UNKNOWN = ffi::SCARD_UNKNOWN;
-        const ABSENT = ffi::SCARD_ABSENT;
-        const PRESENT = ffi::SCARD_PRESENT;
-        const SWALLOWED = ffi::SCARD_SWALLOWED;
-        const POWERED = ffi::SCARD_POWERED;
-        const NEGOTIABLE = ffi::SCARD_NEGOTIABLE;
-        const SPECIFIC = ffi::SCARD_SPECIFIC;
+        const UNKNOWN = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_UNKNOWN }
+            #[cfg(target_os = "windows")] { 0x0001 }
+        };
+        const ABSENT = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_ABSENT }
+            #[cfg(target_os = "windows")] { 0x0002 }
+        };
+        const PRESENT = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_PRESENT }
+            #[cfg(target_os = "windows")] { 0x0004 }
+        };
+        const SWALLOWED = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_SWALLOWED }
+            #[cfg(target_os = "windows")] { 0x0008 }
+        };
+        const POWERED = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_POWERED }
+            #[cfg(target_os = "windows")] { 0x0010 }
+        };
+        const NEGOTIABLE = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_NEGOTIABLE }
+            #[cfg(target_os = "windows")] { 0x0020 }
+        };
+        const SPECIFIC = {
+            #[cfg(not(target_os = "windows"))] { ffi::SCARD_SPECIFIC }
+            #[cfg(target_os = "windows")] { 0x0040 }
+        };
+    }
+}
+
+impl Status {
+    fn from_raw(raw_status: DWORD) -> Self {
+        #[cfg(target_os = "windows")]
+        match (raw_status) {
+            ffi::SCARD_UNKNOWN => Status::UNKNOWN,
+            ffi::SCARD_ABSENT => Status::ABSENT,
+            ffi::SCARD_PRESENT => Status::PRESENT,
+            ffi::SCARD_SWALLOWED => Status::SWALLOWED,
+            ffi::SCARD_POWERED => Status::POWERED,
+            ffi::SCARD_NEGOTIABLE => Status::NEGOTIABLE,
+            ffi::SCARD_SPECIFIC => Status::SPECIFIC,
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        Status::from_bits_truncate(raw_status)
     }
 }
 
@@ -1001,12 +1045,6 @@ impl Drop for ReaderState {
 #[derive(Clone, Debug)]
 pub struct CardStatus<'names_buf, 'atr_buf> {
     reader_names: ReaderNames<'names_buf>,
-    // `state` is currently not exposed, because its semantics are
-    // not portable:
-    // - It is a bitmask on pcsclite, ordinal on Windows.
-    // - In pcsclite, 16 upper bits contain an event counter.
-    // If you need this field, open an issue.
-    #[allow(unused)]
     state: DWORD,
     protocol: Option<Protocol>,
     atr: &'atr_buf [u8],
@@ -1016,6 +1054,11 @@ impl<'names_buf, 'atr_buf> CardStatus<'names_buf, 'atr_buf> {
     /// Iterator over the names by which the connected card reader is known.
     pub fn reader_names(&self) -> ReaderNames<'names_buf> {
         self.reader_names.clone()
+    }
+
+    /// Current status of the smart card in the reader.
+    pub fn status(&self) -> Status {
+        Status::from_raw(self.state)
     }
 
     /// Current protocol of the card, if any.
@@ -1056,12 +1099,6 @@ impl<'names_buf, 'atr_buf> CardStatus<'names_buf, 'atr_buf> {
 #[derive(Clone, Debug)]
 pub struct CardStatusOwned {
     reader_names: Vec<CString>,
-    // `state` is currently not exposed, because its semantics are
-    // not portable:
-    // - It is a bitmask on pcsclite, ordinal on Windows.
-    // - In pcsclite, 16 upper bits contain an event counter.
-    // If you need this field, open an issue.
-    #[allow(unused)]
     state: DWORD,
     protocol: Option<Protocol>,
     atr: Vec<u8>,
@@ -1071,6 +1108,11 @@ impl CardStatusOwned {
     /// Slice of the names by which the connected card reader is known.
     pub fn reader_names(&self) -> &[CString] {
         &self.reader_names
+    }
+
+    /// Current status of the smart card in the reader.
+    pub fn status(&self) -> Status {
+        Status::from_raw(self.state)
     }
 
     /// Current protocol of the card, if any.
@@ -1201,18 +1243,16 @@ impl Card {
     ///
     /// ## Deprecated
     ///
-    /// The `Status` return value is not portable to Windows.
-    ///
     /// The reader names and ATR return values are missing.
     ///
     /// When there is no active protocol (as when connecting to the reader
     /// directly), this function panics.
     ///
-    /// Use `status2()` instead.
+    /// Use `status2()` or `status2_owned()` instead.
     ///
     /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gae49c3c894ad7ac12a5b896bde70d0382
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379803.aspx
-    #[deprecated(since="2.3.0", note="Not portable; use status2() instead.")]
+    #[deprecated(since="2.3.0", note="Use status2() or status2_owned() instead.")]
     pub fn status(
         &self,
     ) -> Result<(Status, Protocol), Error> {
@@ -1230,7 +1270,8 @@ impl Card {
                 null_mut(),
             ));
 
-            let status = Status::from_bits_truncate(raw_status);
+            let status = Status::from_raw(raw_status);
+
             let protocol = Protocol::from_raw(raw_protocol).expect(
                 "pcsc::Card::status() does not support direct connections; use status2() instead"
             );
