@@ -1,3 +1,13 @@
+# pcsc 2.6.0 (2021-08-24)
+
+* Un-deprecated the `pcsc::Status` type. It was previously disabled due to
+  a portability hazard; now Windows is made to behave like other
+  platforms, although only one bit is ever set.
+
+- Added `status.status()` accessor to `CardStatus` (return value of
+  `Card::status2()`) and `CardStatusOwned` (return value of
+  `Card::status2_owned()`).
+
 # pcsc 2.5.0 (2021-05-17)
 
 * Added owned versions of several functions:
