@@ -1173,6 +1173,31 @@ impl Card {
         }
     }
 
+    /// Like `Card::transaction`, but returns the reference to `self` on error.
+    ///
+    /// This function is like [`Card::transaction`], but also returns
+    /// the reference to `self` on error.  When starting a
+    /// transaction, it is necessary to deal with transient errors,
+    /// like [`Error::ResetCard`] by reconnecting to the card, and
+    /// retrying the transaction.  When this functionality is wrapped,
+    /// this doesn't work, because mutable references can't be
+    /// reborrowed.  This function returns the reference, which allows
+    /// this construct.
+    pub fn transaction2(
+        &mut self,
+    ) -> Result<Transaction, (&mut Self, Error)> {
+        // We can't use try_pcsc, because it returns an incompatible
+        // type.  And we can't wrap it in a closure due to lifetimes.
+        // Hence we inline try_pcsc!.
+
+        match unsafe { ffi::SCardBeginTransaction(self.handle) } {
+            ffi::SCARD_S_SUCCESS => Ok(Transaction {
+                card: self,
+            }),
+            err => Err((self, Error::from_raw(err))),
+        }
+    }
+
     /// Reconnect to the card.
     ///
     /// This function wraps `SCardReconnect` ([pcsclite][1], [MSDN][2]).
