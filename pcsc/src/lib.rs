@@ -1173,28 +1173,38 @@ impl Card {
         }
     }
 
-    /// Like `Card::transaction`, but returns the reference to `self` on error.
+    /// Start a new exclusive transaction with the card.
     ///
-    /// This function is like [`Card::transaction`], but also returns
-    /// the reference to `self` on error.  When starting a
-    /// transaction, it is necessary to deal with transient errors,
-    /// like [`Error::ResetCard`] by reconnecting to the card, and
-    /// retrying the transaction.  When this functionality is wrapped,
-    /// this doesn't work, because mutable references can't be
-    /// reborrowed.  This function returns the reference, which allows
-    /// this construct.
+    /// Operations on the card for the duration of the transaction
+    /// can only be performed through the returned `Transaction`.
+    ///
+    /// This function is like [`Card::transaction`], but also returns the
+    /// reference to `self` on error. When starting a transaction, you might
+    /// want to deal with transient errors, like [`Error::ResetCard`], by
+    /// reconnecting to the card, and retrying the transaction. When this
+    /// functionality is wrapped, this doesn't work, because mutable references
+    /// can't be reborrowed (at least in current Rust). This function returns
+    /// the reference, which allows this construct.
+    ///
+    /// This function wraps `SCardBeginTransaction` ([pcsclite][1],
+    /// [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaddb835dce01a0da1d6ca02d33ee7d861
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
     pub fn transaction2(
         &mut self,
     ) -> Result<Transaction, (&mut Self, Error)> {
-        // We can't use try_pcsc, because it returns an incompatible
-        // type.  And we can't wrap it in a closure due to lifetimes.
-        // Hence we inline try_pcsc!.
+        unsafe {
+            let err = ffi::SCardBeginTransaction(
+                self.handle,
+            );
+            if err != ffi::SCARD_S_SUCCESS {
+                return Err((self, Error::from_raw(err)));
+            }
 
-        match unsafe { ffi::SCardBeginTransaction(self.handle) } {
-            ffi::SCARD_S_SUCCESS => Ok(Transaction {
+            return Ok(Transaction {
                 card: self,
-            }),
-            err => Err((self, Error::from_raw(err))),
+            })
         }
     }
 
