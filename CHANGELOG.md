@@ -1,3 +1,13 @@
+# pcsc 2.7.0 (2022-02-15)
+
+* Added `Card::transaction2()`, which is like `Card::transaction()`, but
+  also returns the `&mut self` on error. Without it is is difficult
+  (impossible) to encapsulate a retry-loop of trying to acquire a
+  transaction in a function, at least until some borrow-checker
+  improvements end our woes.
+
+  Contributed by Neal H. Walfield.
+
 # pcsc 2.6.0 (2021-08-24)
 
 * Un-deprecated the `pcsc::Status` type. It was previously disabled due to
