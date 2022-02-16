@@ -104,6 +104,7 @@
 extern crate bitflags;
 extern crate pcsc_sys as ffi;
 
+use std::borrow::BorrowMut;
 use std::ffi::{CStr, CString};
 use std::mem::{forget, transmute};
 use std::ops::Deref;
@@ -632,8 +633,10 @@ pub struct Card {
 // - There can only be one active transaction at a time.
 // - All operations on the card must be performed through the transaction
 //   for the duration of the transaction's lifetime.
-pub struct Transaction<'tx> {
-    card: &'tx mut Card,
+pub struct Transaction<C> where C: BorrowMut<Card> {
+    // This is an option, because we need to tombstone it to
+    // effectively disable the Drop implementation.
+    card: Option<C>,
 }
 
 /// An iterator over card reader names.
@@ -1161,14 +1164,45 @@ impl Card {
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
     pub fn transaction(
         &mut self,
-    ) -> Result<Transaction, Error> {
+    ) -> Result<Transaction<&mut Card>, Error> {
         unsafe {
             try_pcsc!(ffi::SCardBeginTransaction(
                 self.handle,
             ));
 
             Ok(Transaction {
-                card: self,
+                card: Some(self),
+            })
+        }
+    }
+
+    /// Start a new exclusive transaction with the card.
+    ///
+    /// This function is like [`Card::transaction`], but it takes
+    /// ownership of the underlying [`Card`].  You can get the `Card`
+    /// back by explicitly ending the transaction using
+    /// [`Transaction::end`] or [`Transaction::end2`].
+    ///
+    /// This function is useful when you want to save a
+    /// [`Transaction`], but can't because Rust's support for
+    /// self-referential data structures is still awkward at best.
+    ///
+    /// Note: you shouldn't keep a transaction open for longer than
+    /// necessary.  Microsoft's PCSC implementation, for instance,
+    /// will [automatically end a transaction][1] after 5 seconds of
+    /// inactivity.
+    ///
+    /// [1]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
+    pub fn transaction_owned(
+        self,
+    ) -> Result<Transaction<Card>, Error> {
+        unsafe {
+            try_pcsc!(ffi::SCardBeginTransaction(
+                self.handle,
+            ));
+
+            Ok(Transaction {
+                card: Some(self),
             })
         }
     }
@@ -1193,7 +1227,7 @@ impl Card {
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
     pub fn transaction2(
         &mut self,
-    ) -> Result<Transaction, (&mut Self, Error)> {
+    ) -> Result<Transaction<&mut Card>, (&mut Self, Error)> {
         unsafe {
             let err = ffi::SCardBeginTransaction(
                 self.handle,
@@ -1203,7 +1237,41 @@ impl Card {
             }
 
             return Ok(Transaction {
-                card: self,
+                card: Some(self),
+            })
+        }
+    }
+
+    /// Start a new exclusive transaction with the card.
+    ///
+    /// This function is like [`Card::transaction2`], but it takes
+    /// ownership of the underlying [`Card`].  You can get the `Card`
+    /// back by explicitly ending the transaction using
+    /// [`Transaction::end`] or [`Transaction::end2`].
+    ///
+    /// This function is useful when you want to save a
+    /// [`Transaction`], but can't because Rust's support for
+    /// self-referential data structures is still awkward at best.
+    ///
+    /// Note: you shouldn't keep a transaction open for longer than
+    /// necessary.  Microsoft's PCSC implementation, for instance,
+    /// will [automatically end a transaction][1] after 5 seconds of
+    /// inactivity.
+    ///
+    /// [1]: https://msdn.microsoft.com/en-us/library/aa379469.aspx
+    pub fn transaction2_owned(
+        self,
+    ) -> Result<Transaction<Card>, (Self, Error)> {
+        unsafe {
+            let err = ffi::SCardBeginTransaction(
+                self.handle,
+            );
+            if err != ffi::SCARD_S_SUCCESS {
+                return Err((self, Error::from_raw(err)));
+            }
+
+            return Ok(Transaction {
+                card: Some(self),
             })
         }
     }
@@ -1639,7 +1707,9 @@ impl Drop for Card {
 unsafe impl Send for Card {}
 unsafe impl Sync for Card {}
 
-impl<'tx> Transaction<'tx> {
+impl<C> Transaction<C>
+    where C: BorrowMut<Card>
+{
     /// End the transaction.
     ///
     /// In case of error, ownership of the transaction is returned to the
@@ -1658,12 +1728,12 @@ impl<'tx> Transaction<'tx> {
     /// this function if you want to handle errors or use a different
     /// disposition method.
     pub fn end(
-        self,
+        mut self,
         disposition: Disposition,
-    ) -> Result<(), (Transaction<'tx>, Error)> {
+    ) -> Result<C, (Self, Error)> {
         unsafe {
             let err = ffi::SCardEndTransaction(
-                self.card.handle,
+                self.card.as_mut().unwrap().borrow().handle,
                 disposition.into_raw(),
             );
             if err != 0 {
@@ -1671,15 +1741,34 @@ impl<'tx> Transaction<'tx> {
             }
 
             // Skip the drop, we did it "manually".
-            forget(self);
+            Ok(self.card.take().unwrap())
+        }
+    }
 
-            Ok(())
+    /// End the transaction.
+    ///
+    /// This function is like [`Transaction::end`], but you always get
+    /// back the underlying card.
+    pub fn end2(
+        self,
+        disposition: Disposition,
+    ) -> C {
+        match self.end(disposition) {
+            Ok(c) => c,
+            Err((mut tx, _err)) => tx.card.take().unwrap(),
         }
     }
 }
 
-impl<'tx> Drop for Transaction<'tx> {
+impl<C> Drop for Transaction<C>
+    where C: BorrowMut<Card>
+{
     fn drop(&mut self) {
+        if self.card.is_none() {
+            // Already dropped.
+            return;
+        }
+
         unsafe {
             // Error is ignored here; to do proper error handling,
             // end() should be called manually.
@@ -1687,17 +1776,18 @@ impl<'tx> Drop for Transaction<'tx> {
             // Disposition is hard-coded to LeaveCard here; to use
             // another method, end() should be called manually.
             let _err = ffi::SCardEndTransaction(
-                self.card.handle,
+                self.handle,
                 Disposition::LeaveCard.into_raw(),
             );
         }
     }
 }
 
-impl<'tx> Deref for Transaction<'tx> {
+impl<C> Deref for Transaction<C> where C: BorrowMut<Card>
+{
     type Target = Card;
 
     fn deref(&self) -> &Card {
-        self.card
+        self.card.as_ref().unwrap().borrow()
     }
 }
