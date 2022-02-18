@@ -1012,7 +1012,7 @@ impl ReaderState {
         &self.inner.rgbAtr[0..self.inner.cbAtr as usize]
     }
     
-    /// The last current state.
+    /// The last current state that was set.
     pub fn current_state(&self) -> State {
         State::from_bits_truncate(self.inner.dwCurrentState)
     }
