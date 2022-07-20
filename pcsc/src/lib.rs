@@ -599,7 +599,7 @@ fn get_protocol_pci(protocol: Protocol) -> &'static ffi::SCARD_IO_REQUEST {
             Protocol::T0 => &ffi::g_rgSCardT0Pci,
             Protocol::T1 => &ffi::g_rgSCardT1Pci,
             Protocol::RAW => &ffi::g_rgSCardRawPci,
-            Protocol::ANY => &ffi::g_rgSCardT0Pci | &ffi::g_rgSCardT1Pci,
+            Protocol::ANY => &(ffi::g_rgSCardT0Pci | ffi::g_rgSCardT1Pci),
         }
     }
 }
