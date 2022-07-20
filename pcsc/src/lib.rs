@@ -221,6 +221,7 @@ pub enum Protocol {
     T0 = ffi::SCARD_PROTOCOL_T0 as u32,
     T1 = ffi::SCARD_PROTOCOL_T1 as u32,
     RAW = ffi::SCARD_PROTOCOL_RAW as u32,
+    ANY = ffi::SCARD_PROTOCOL_ANY as u32,
 }
 
 impl Protocol {
@@ -230,6 +231,7 @@ impl Protocol {
             ffi::SCARD_PROTOCOL_T0 => Some(Protocol::T0),
             ffi::SCARD_PROTOCOL_T1 => Some(Protocol::T1),
             ffi::SCARD_PROTOCOL_RAW => Some(Protocol::RAW),
+            ffi::SCARD_PROTOCOL_ANY => Some(Protocol::ANY),
             // This should not be possible, since we only allow to select
             // from Protocol's variants (or none).
             _ => panic!("impossible protocol: {:#x}", raw),
