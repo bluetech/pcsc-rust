@@ -102,7 +102,7 @@
 
 #[macro_use]
 extern crate bitflags;
-extern crate pcsc_sys as ffi;
+pub extern crate pcsc_sys as ffi;
 
 use std::ffi::{CStr, CString};
 use std::mem::{forget, transmute};
