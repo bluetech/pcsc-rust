@@ -1011,7 +1011,7 @@ impl ReaderState {
     pub fn atr(&self) -> &[u8] {
         &self.inner.rgbAtr[0..self.inner.cbAtr as usize]
     }
-    
+
     /// The last current state that was set.
     pub fn current_state(&self) -> State {
         State::from_bits_truncate(self.inner.dwCurrentState)
@@ -1207,7 +1207,7 @@ impl Card {
                 return Err((self, Error::from_raw(err)));
             }
 
-            return Ok(Transaction {
+            Ok(Transaction {
                 card: self,
             })
         }
