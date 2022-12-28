@@ -1047,6 +1047,9 @@ impl Drop for ReaderState {
     }
 }
 
+unsafe impl Send for ReaderState {}
+unsafe impl Sync for ReaderState {}
+
 /// Status of a card in a card reader.
 #[derive(Clone, Debug)]
 pub struct CardStatus<'names_buf, 'atr_buf> {
