@@ -1,8 +1,5 @@
 // Example of how to cancel a blocking Context operation from another
 // thread.
-
-extern crate pcsc;
-
 use std::time::Duration;
 
 use pcsc::*;

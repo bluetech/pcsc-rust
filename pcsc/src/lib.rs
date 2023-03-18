@@ -100,16 +100,15 @@
 //! [8]: https://msdn.microsoft.com/en-us/library/ms953432.aspx#smartcardcspcook_topic2
 #![allow(deprecated)]
 
-#[macro_use]
-extern crate bitflags;
-pub extern crate pcsc_sys as ffi;
-
 use std::ffi::{CStr, CString};
 use std::mem::{forget, transmute};
 use std::ops::Deref;
 use std::os::raw::c_char;
 use std::ptr::{null, null_mut};
 use std::sync::Arc;
+
+use bitflags::bitflags;
+use pcsc_sys as ffi;
 
 use ffi::{DWORD, LONG};
 
@@ -347,6 +346,7 @@ pub enum Error {
 }
 
 impl Error {
+    #[allow(clippy::manual_range_contains)]
     fn from_raw(raw: LONG) -> Error {
         unsafe {
             // The ranges here are the "blocks" above.

@@ -1,7 +1,4 @@
 // Example of how to enumerate connected card readers.
-
-extern crate pcsc;
-
 use pcsc::*;
 
 fn main() {

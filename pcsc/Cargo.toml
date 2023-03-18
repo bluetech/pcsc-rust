@@ -11,6 +11,7 @@ homepage = "https://github.com/bluetech/pcsc-rust"
 readme = "../README.md"
 authors = ["Ran Benita <ran@unusedvar.com>"]
 rust-version = "1.38"
+edition = "2018"
 
 [dependencies]
 bitflags = "1.2.1"

@@ -1,5 +1,3 @@
-extern crate pcsc;
-
 use pcsc::*;
 
 fn main() {
