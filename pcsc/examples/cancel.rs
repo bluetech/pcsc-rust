@@ -28,9 +28,7 @@ fn main() {
 
     // Set up the blocking call, and wait for cancel or timeout.
     println!("Entering blocking call; press Enter to cancel");
-    let mut reader_states = vec![
-        ReaderState::new(PNP_NOTIFICATION(), State::UNAWARE),
-    ];
+    let mut reader_states = vec![ReaderState::new(PNP_NOTIFICATION(), State::UNAWARE)];
     match ctx.get_status_change(Duration::from_secs(5), &mut reader_states) {
         Ok(()) => {
             println!("Blocking call exited normally");
