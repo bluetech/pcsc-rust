@@ -12,6 +12,7 @@ authors = ["Ran Benita <ran@unusedvar.com>"]
 build = "build.rs"
 links = "pcsc"
 rust-version = "1.38"
+edition = "2018"
 
 [build-dependencies]
 pkg-config = "0.3.9"

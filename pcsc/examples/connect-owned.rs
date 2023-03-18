@@ -1,7 +1,4 @@
 // Example of communication with a smart card.
-
-extern crate pcsc;
-
 use pcsc::*;
 
 fn main() {

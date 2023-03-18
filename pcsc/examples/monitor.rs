@@ -1,7 +1,4 @@
 // Example of how to monitor card & card reader state changes.
-
-extern crate pcsc;
-
 use pcsc::*;
 
 fn main() {
