@@ -243,9 +243,9 @@ pub const SCARD_CLASS_ICC_STATE: ULONG = 9;
 pub const SCARD_CLASS_SYSTEM: ULONG = 0;
 
 macro_rules! SCARD_ATTR_VALUE {
-    ($class:expr, $value:expr) => (
+    ($class:expr, $value:expr) => {
         ($class << 16) | $value
-    )
+    };
 }
 
 pub const SCARD_ATTR_VENDOR_NAME: DWORD = SCARD_ATTR_VALUE!(SCARD_CLASS_VENDOR_INFO, 0x0100);
@@ -325,17 +325,11 @@ extern "system" {
         phContext: *mut SCARDCONTEXT,
     ) -> LONG;
 
-    pub fn SCardReleaseContext(
-        hContext: SCARDCONTEXT,
-    ) -> LONG;
+    pub fn SCardReleaseContext(hContext: SCARDCONTEXT) -> LONG;
 
-    pub fn SCardIsValidContext(
-        hContext: SCARDCONTEXT,
-    ) -> LONG;
+    pub fn SCardIsValidContext(hContext: SCARDCONTEXT) -> LONG;
 
-    pub fn SCardCancel(
-        hContext: SCARDCONTEXT,
-    ) -> LONG;
+    pub fn SCardCancel(hContext: SCARDCONTEXT) -> LONG;
 
     #[cfg_attr(target_os = "windows", link_name = "SCardConnectA")]
     pub fn SCardConnect(
@@ -355,10 +349,7 @@ extern "system" {
         pdwActiveProtocol: *mut DWORD,
     ) -> LONG;
 
-    pub fn SCardDisconnect(
-        hCard: SCARDHANDLE,
-        dwDisposition: DWORD,
-    ) -> LONG;
+    pub fn SCardDisconnect(hCard: SCARDHANDLE, dwDisposition: DWORD) -> LONG;
 
     #[cfg_attr(target_os = "windows", link_name = "SCardGetStatusChangeA")]
     pub fn SCardGetStatusChange(
@@ -376,14 +367,9 @@ extern "system" {
         pcchReaders: *mut DWORD,
     ) -> LONG;
 
-    pub fn SCardBeginTransaction(
-        hCard: SCARDHANDLE,
-    ) -> LONG;
+    pub fn SCardBeginTransaction(hCard: SCARDHANDLE) -> LONG;
 
-    pub fn SCardEndTransaction(
-        hCard: SCARDHANDLE,
-        dwDisposition: DWORD,
-    ) -> LONG;
+    pub fn SCardEndTransaction(hCard: SCARDHANDLE, dwDisposition: DWORD) -> LONG;
 
     #[cfg_attr(target_os = "windows", link_name = "SCardStatusA")]
     pub fn SCardStatus(
@@ -396,19 +382,9 @@ extern "system" {
         pcbAtrLen: *mut DWORD,
     ) -> LONG;
 
-    pub fn SCardGetAttrib(
-        hCard: SCARDHANDLE,
-        dwAttrId: DWORD,
-        pbAttr: *mut u8,
-        pcbAttrLen: *mut DWORD,
-    ) -> LONG;
+    pub fn SCardGetAttrib(hCard: SCARDHANDLE, dwAttrId: DWORD, pbAttr: *mut u8, pcbAttrLen: *mut DWORD) -> LONG;
 
-    pub fn SCardSetAttrib(
-        hCard: SCARDHANDLE,
-        dwAttrId: DWORD,
-        pbAttr: *const u8,
-        pcbAttrLen: DWORD,
-    ) -> LONG;
+    pub fn SCardSetAttrib(hCard: SCARDHANDLE, dwAttrId: DWORD, pbAttr: *const u8, pcbAttrLen: DWORD) -> LONG;
 
     pub fn SCardTransmit(
         hCard: SCARDHANDLE,
