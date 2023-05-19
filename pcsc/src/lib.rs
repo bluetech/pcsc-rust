@@ -36,7 +36,7 @@
 //! standard. The commands themselves vary based on the application on the
 //! card.
 //!
-//! [6]: http://www.cardwerk.com/smartcards/smartcard_standard_ISO7816-4.aspx
+//! [6]: https://cardwerk.com/iso-7816-part-4/
 //!
 //! ## Note on portability
 //!
