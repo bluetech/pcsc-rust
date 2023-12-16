@@ -99,6 +99,7 @@
 //!
 //! [8]: https://msdn.microsoft.com/en-us/library/ms953432.aspx#smartcardcspcook_topic2
 #![allow(deprecated)]
+#![allow(clippy::bad_bit_mask)]
 
 use std::ffi::{CStr, CString};
 use std::mem::{forget, transmute};
