@@ -1,3 +1,11 @@
+# pcsc 2.8.1 (2023-12-16)
+
+* Fix possible panics in `list_readers_owned` and `get_attribute_owned` functions,
+  and handling of null buffers in `list_readers` and `get_attribute`.
+
+  Reported by @ n-eq in
+  [issue #9](https://github.com/bluetech/pcsc-rust/issues/44).
+
 # pcsc 2.8.0 (2022-12-29)
 
 * The `pcsc-sys` crate is now reexported from the `pcsc` crate as
