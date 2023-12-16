@@ -792,18 +792,27 @@ impl Context {
         unsafe {
             assert!(buffer.len() <= std::u32::MAX as usize);
             let mut buflen = buffer.len() as DWORD;
+            // SCardListReaders treats null specially, to query the needed
+            // buffer length. We don't want the caller to be able to trigger
+            // this here -- should use `list_readers_len` instead. So needs
+            // some special treatment.
+            let bufptr = if buflen == 0 {
+                null_mut()
+            } else {
+                let ptr = buffer.as_mut_ptr() as *mut c_char;
+                assert!(!ptr.is_null());
+                ptr
+            };
 
-            let err = ffi::SCardListReaders(
-                self.inner.handle,
-                null(),
-                buffer.as_mut_ptr() as *mut c_char,
-                &mut buflen,
-            );
+            let err = ffi::SCardListReaders(self.inner.handle, null(), bufptr, &mut buflen);
             if err == Error::NoReadersAvailable.into_raw() {
                 return Ok(ReaderNames { buf: b"\0", pos: 0 });
             }
             if err != ffi::SCARD_S_SUCCESS {
                 return Err(Error::from_raw(err));
+            }
+            if bufptr.is_null() {
+                return Err(Error::InsufficientBuffer);
             }
 
             Ok(ReaderNames {
@@ -844,7 +853,11 @@ impl Context {
     /// [1]: https://pcsclite.apdu.fr/api/group__API.html#ga93b07815789b3cf2629d439ecf20f0d9
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379793.aspx
     pub fn list_readers_owned(&self) -> Result<Vec<CString>, Error> {
-        let mut buffer = vec![0u8; self.list_readers_len()?];
+        let len = self.list_readers_len()?;
+        if len == 0 {
+            return Ok(vec![]);
+        }
+        let mut buffer = vec![0u8; len];
         Ok(self.list_readers(&mut buffer)?.map(ToOwned::to_owned).collect())
     }
 
@@ -1407,6 +1420,17 @@ impl Card {
         unsafe {
             assert!(buffer.len() <= std::u32::MAX as usize);
             let mut attribute_len = buffer.len() as DWORD;
+            // SCardGetAttribtreats null specially, to query the needed
+            // buffer length. We don't want the caller to be able to trigger
+            // this here -- should use `get_attribute_len` instead. So needs
+            // some special treatment.
+            let bufptr = if attribute_len == 0 {
+                null_mut()
+            } else {
+                let ptr = buffer.as_mut_ptr();
+                assert!(!ptr.is_null());
+                ptr
+            };
 
             try_pcsc!(ffi::SCardGetAttrib(
                 self.handle,
@@ -1414,6 +1438,9 @@ impl Card {
                 buffer.as_mut_ptr(),
                 &mut attribute_len,
             ));
+            if bufptr.is_null() && attribute_len > 0 {
+                return Err(Error::InsufficientBuffer);
+            }
 
             Ok(&buffer[0..attribute_len as usize])
         }
@@ -1449,7 +1476,11 @@ impl Card {
     /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gaacfec51917255b7a25b94c5104961602
     /// [2]: https://msdn.microsoft.com/en-us/library/aa379559.aspx
     pub fn get_attribute_owned(&self, attribute: Attribute) -> Result<Vec<u8>, Error> {
-        let mut buf = vec![0u8; self.get_attribute_len(attribute)?];
+        let len = self.get_attribute_len(attribute)?;
+        if len == 0 {
+            return Ok(vec![]);
+        }
+        let mut buf = vec![0u8; len];
         let n = self.get_attribute(attribute, &mut buf)?.len();
         buf.truncate(n);
         Ok(buf)
