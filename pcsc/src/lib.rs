@@ -1013,7 +1013,7 @@ impl ReaderState {
 impl Drop for ReaderState {
     fn drop(&mut self) {
         // Reclaim the name and drop it immediately.
-        unsafe { CString::from_raw(self.inner.szReader as *mut c_char) };
+        unsafe { drop(CString::from_raw(self.inner.szReader as *mut c_char)) };
     }
 }
 
