@@ -109,7 +109,7 @@ use std::ptr::{null, null_mut};
 use std::sync::Arc;
 
 use bitflags::bitflags;
-use pcsc_sys as ffi;
+pub use pcsc_sys as ffi;
 
 use ffi::{DWORD, LONG};
 
