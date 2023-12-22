@@ -46,3 +46,7 @@ jobs:
       - name: Lint
         if: matrix.toolchain == 'stable'
         run: cargo clippy --verbose
+
+      - name: Format
+        if: matrix.toolchain == 'stable'
+        run: cargo fmt --all -- --check
