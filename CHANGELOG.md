@@ -1,3 +1,9 @@
+# pcsc 2.8.2 (2023-12-23)
+
+* Make `pcsc::ffi` public again; accidentally regressed in 2.8.1.
+
+  Contributed by Ignacio Casal Quinteiro.
+
 # pcsc 2.8.1 (2023-12-16)
 
 * Fix possible panics in `list_readers_owned` and `get_attribute_owned` functions,
