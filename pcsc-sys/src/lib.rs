@@ -396,6 +396,7 @@ extern "system" {
         pcbRecvLength: *mut DWORD,
     ) -> LONG;
 
+    #[cfg_attr(target_os = "macos", link_name = "SCardControl132")]
     pub fn SCardControl(
         hCard: SCARDHANDLE,
         dwControlCode: DWORD,
