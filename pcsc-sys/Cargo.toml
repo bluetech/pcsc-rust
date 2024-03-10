@@ -15,4 +15,4 @@ rust-version = "1.38"
 edition = "2018"
 
 [build-dependencies]
-pkg-config = "0.3.9"
+pkg-config = "0.3.30"

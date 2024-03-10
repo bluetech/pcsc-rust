@@ -124,6 +124,7 @@ const DUMMY_DWORD: DWORD = 0xdead_beef;
 
 bitflags! {
     /// A mask of the state a card reader.
+    #[derive(Debug)]
     pub struct State: DWORD {
         const UNAWARE = ffi::SCARD_STATE_UNAWARE;
         const IGNORE = ffi::SCARD_STATE_IGNORE;
@@ -148,6 +149,7 @@ bitflags! {
     /// On Windows, Status always has exactly one bit set, and the bit values do
     /// not correspond to underlying PC/SC constants. This allows Status to be
     /// used in the same way across all platforms.
+    #[derive(Debug)]
     pub struct Status: DWORD {
         const UNKNOWN = {
             #[cfg(not(target_os = "windows"))] { ffi::SCARD_UNKNOWN }
