@@ -10,7 +10,7 @@ repository = "https://github.com/bluetech/pcsc-rust"
 homepage = "https://github.com/bluetech/pcsc-rust"
 readme = "../README.md"
 authors = ["Ran Benita <ran@unusedvar.com>"]
-rust-version = "1.38"
+rust-version = "1.56"
 edition = "2018"
 
 [dependencies]
