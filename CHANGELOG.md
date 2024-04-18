@@ -1,3 +1,9 @@
+# pcsc-sys 1.2.1 (2024-04-18)
+
+* Fix ``SCardControl`` on mac OS (use the newer ``SCardControl132`` symbol).
+
+  Contributed by Tang Cheng.
+
 # pcsc 2.8.2 (2023-12-23)
 
 * Make `pcsc::ffi` public again; accidentally regressed in 2.8.1.
