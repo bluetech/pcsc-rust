@@ -1684,6 +1684,21 @@ impl<'tx> Transaction<'tx> {
             Ok(())
         }
     }
+
+    /// Reconnect to the card.
+    ///
+    /// This function wraps `SCardReconnect` ([pcsclite][1], [MSDN][2]).
+    ///
+    /// [1]: https://pcsclite.apdu.fr/api/group__API.html#gad5d4393ca8c470112ad9468c44ed8940
+    /// [2]: https://msdn.microsoft.com/en-us/library/aa379797.aspx
+    pub fn reconnect(
+        &mut self,
+        share_mode: ShareMode,
+        preferred_protocols: Protocols,
+        initialization: Disposition,
+    ) -> Result<(), Error> {
+        self.card.reconnect(share_mode, preferred_protocols, initialization)
+    }
 }
 
 impl<'tx> Drop for Transaction<'tx> {
