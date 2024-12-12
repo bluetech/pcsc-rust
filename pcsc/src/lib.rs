@@ -583,7 +583,7 @@ pub fn PNP_NOTIFICATION() -> &'static CStr {
 /// to this function.
 ///
 /// This function wraps the `SCARD_CTL_CODE` macro.
-pub fn ctl_code(code: DWORD) -> DWORD {
+pub const fn ctl_code(code: DWORD) -> DWORD {
     ffi::SCARD_CTL_CODE(code)
 }
 
