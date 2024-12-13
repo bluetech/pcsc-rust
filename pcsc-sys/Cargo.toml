@@ -11,8 +11,8 @@ homepage = "https://github.com/bluetech/pcsc-rust"
 authors = ["Ran Benita <ran@unusedvar.com>"]
 build = "build.rs"
 links = "pcsc"
-rust-version = "1.38"
-edition = "2018"
+rust-version = "1.56"
+edition = "2021"
 
 [build-dependencies]
 pkg-config = "0.3.9"

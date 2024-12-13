@@ -1,2 +1,3 @@
 [workspace]
 members = ["pcsc", "pcsc-sys"]
+resolver = "2"

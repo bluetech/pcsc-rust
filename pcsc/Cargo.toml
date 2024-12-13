@@ -10,9 +10,9 @@ repository = "https://github.com/bluetech/pcsc-rust"
 homepage = "https://github.com/bluetech/pcsc-rust"
 readme = "../README.md"
 authors = ["Ran Benita <ran@unusedvar.com>"]
-rust-version = "1.38"
-edition = "2018"
+rust-version = "1.56"
+edition = "2021"
 
 [dependencies]
-bitflags = "1.2.1"
+bitflags = "2"
 pcsc-sys = { version = "1.2.0", path = "../pcsc-sys" }
