@@ -1,3 +1,31 @@
+# pcsc 2.9.0 (2024-12-14)
+
+- Bump the minimum supported Rust version (MSRV) to 1.56.0 from 1.38.0.
+
+- Update `bitflags` from version 1 to 2. This is a breaking change to the
+  `State`, `Status` and `Protocols` types, but I tried to keep them compatible
+  following `bitflags`'s instructions so hopefully it doesn't break any usage
+  in practice.
+
+- Make `ctl_code` a const fn.
+
+  Contributed by Sola.
+
+- Add `Transaction::reconnect()` to allow reconnecting to a card from withing a
+  transaction.
+
+  Contributed by Konrad Vité.
+
+# pcsc-sys 1.3.0 (2024-12-14)
+
+- Bump the minimum supported Rust version (MSRV) to 1.56.0 from 1.38.0.
+
+- Add nicer error message when pcsclite is not found on Linux.
+
+- Make `SCARD_CTL_CODE` a const fn.
+
+  Contributed by Sola.
+
 # pcsc-sys 1.2.1 (2024-04-18)
 
 * Fix ``SCardControl`` on mac OS (use the newer ``SCardControl132`` symbol).
