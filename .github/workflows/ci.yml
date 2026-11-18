@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions: {}
+
 jobs:
   ci:
     strategy:
@@ -20,16 +22,21 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install dependencies (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
         run: sudo apt install -y libpcsclite-dev
 
       - name: Setup toolchain
+        shell: bash
         run: |
-          rustup install ${{ matrix.toolchain }}
-          rustup default ${{ matrix.toolchain }}
+          rustup install "$TOOLCHAIN"
+          rustup default "$TOOLCHAIN"
+        env:
+          TOOLCHAIN: ${{ matrix.toolchain }}
 
       - name: Build pcsc-sys
         run: cargo build --verbose
